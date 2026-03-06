@@ -9,25 +9,26 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import dev.csse.dtaylo37.triviago.ui.theme.TriviaGOTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TriviaGoAppBar() {
+fun TriviaGoAppBar(title: String) {
     CenterAlignedTopAppBar(
-        title = { Text(
-            "Welcome Player",
-            style = MaterialTheme.typography.displaySmall
-        ) },
-        colors = TopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            scrolledContainerColor = MaterialTheme.colorScheme.secondary,
-            navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-            titleContentColor = MaterialTheme.colorScheme.onPrimary,
-            actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+        title = {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.displaySmall,
+                color = MaterialTheme.colorScheme.onPrimary
+            )
+        },
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = Color.Transparent
         )
 
         // TODO: In the profile settings screen, this TopAppBar will
@@ -44,7 +45,7 @@ fun TriviaGoAppBarPreview() {
     TriviaGOTheme {
         Scaffold(
             topBar = {
-                TriviaGoAppBar()
+                TriviaGoAppBar("Welcome Player")
             }
         ) {
             innerPadding ->
