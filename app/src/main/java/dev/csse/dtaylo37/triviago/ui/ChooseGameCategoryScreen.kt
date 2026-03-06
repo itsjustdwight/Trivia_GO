@@ -17,17 +17,24 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import dev.csse.dtaylo37.triviago.ui.assets.FigmaAssets
 import dev.csse.dtaylo37.triviago.ui.components.GameScreenFrame
+import dev.csse.dtaylo37.triviago.ui.theme.TriviaBlue
+import dev.csse.dtaylo37.triviago.ui.theme.TriviaGreen
+import dev.csse.dtaylo37.triviago.ui.theme.TriviaPurple
+import dev.csse.dtaylo37.triviago.ui.theme.TriviaRed
+import dev.csse.dtaylo37.triviago.ui.theme.TriviaTeal
+import dev.csse.dtaylo37.triviago.ui.theme.TriviaYellow
 
 private val HeaderBrown = Color(0xFF5B4D4D)
 
 // tile colors from Figma
-private val CatHistory = Color(0xFFE06659)
-private val CatGeography = Color(0xFF605371)
-private val CatScienceMath = Color(0xFF4CB3A0)
-private val CatPopCulture = Color(0xFF2D9DA8)
-private val CatSportsGames = Color(0xFFE7C648)
-private val CatLiterature = Color(0xFF7CBC51)
+private val CatHistory = TriviaRed
+private val CatGeography = TriviaPurple
+private val CatScienceMath = TriviaTeal
+private val CatPopCulture = TriviaBlue
+private val CatSportsGames = TriviaYellow
+private val CatLiterature = TriviaGreen
 
+@Preview
 @Composable
 fun ChooseGameCategoryScreen(
     onCategorySelected: (String) -> Unit,
@@ -179,13 +186,4 @@ private fun WideTile(
             fontWeight = FontWeight.Bold
         )
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ChooseGameCategoryPreview() {
-    ChooseGameCategoryScreen(
-        onCategorySelected = {},
-        onProfileSettings = {}
-    )
 }
