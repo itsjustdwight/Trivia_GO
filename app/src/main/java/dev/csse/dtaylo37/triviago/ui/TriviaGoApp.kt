@@ -174,3 +174,6 @@ fun TriviaGoApp(
         }
     }
 }
+
+// one route for question that takes the question id and then the first thing it does it look at question type
+// and use 'when question type' and then depending on the question type do the corresponding screen
