@@ -74,7 +74,7 @@ class TriviaRepository(context : Context) {
                 answerOptions = listOf("George Washington", "Thomas Jefferson", "Abraham Lincoln", "Benjamin Franklin"),
                 correctAnswer = "George Washington",
                 categoryId = historyId,
-                type = QuestionType.FILL
+                type = QuestionType.MC
             )
         )
 
@@ -85,7 +85,7 @@ class TriviaRepository(context : Context) {
                 answerOptions = listOf("George Washington", "Thomas Jefferson", "Abraham Lincoln", "Benjamin Franklin"),
                 correctAnswer = "George Washington",
                 categoryId = historyId,
-                type = QuestionType.MATCH
+                type = QuestionType.MC
             )
         )
 
@@ -96,7 +96,7 @@ class TriviaRepository(context : Context) {
                 answerOptions = listOf("George Washington", "Thomas Jefferson", "Abraham Lincoln", "Benjamin Franklin"),
                 correctAnswer = "George Washington",
                 categoryId = historyId,
-                type = QuestionType.REARRANGE
+                type = QuestionType.MC
             )
         )
 
@@ -118,7 +118,7 @@ class TriviaRepository(context : Context) {
                 answerOptions = listOf("George Washington", "Thomas Jefferson", "Abraham Lincoln", "Benjamin Franklin"),
                 correctAnswer = "George Washington",
                 categoryId = historyId,
-                type = QuestionType.FILL
+                type = QuestionType.MC
             )
         )
 
@@ -129,7 +129,7 @@ class TriviaRepository(context : Context) {
                 answerOptions = listOf("George Washington", "Thomas Jefferson", "Abraham Lincoln", "Benjamin Franklin"),
                 correctAnswer = "George Washington",
                 categoryId = historyId,
-                type = QuestionType.MATCH
+                type = QuestionType.MC
             )
         )
     }
