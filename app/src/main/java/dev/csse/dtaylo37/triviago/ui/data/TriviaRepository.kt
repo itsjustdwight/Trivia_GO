@@ -24,6 +24,7 @@ class TriviaRepository(context : Context) {
         TriviaDatabase::class.java,
         "trivia.db"
     )
+        .fallbackToDestructiveMigration() // Added to handle schema changes like adding 'type'
         .addCallback(databaseCallback)
         .build()
 
@@ -54,5 +55,82 @@ class TriviaRepository(context : Context) {
         }
     }
 
-    private fun starterData() {}
+    private suspend fun starterData() {
+        val historyId = gameCategoryDao.addGameCategory(GameCategory(categoryName = "History"))
+        questionDao.addQuestion(
+            Question(
+                text = "Who was the first president of the United States?",
+                answerOptions = listOf("George Washington", "Thomas Jefferson", "Abraham Lincoln", "Benjamin Franklin"),
+                correctAnswer = "George Washington",
+                categoryId = historyId,
+                type = QuestionType.MC
+            )
+        )
+
+        val geographyId = gameCategoryDao.addGameCategory(GameCategory(categoryName = "Geography"))
+        questionDao.addQuestion(
+            Question(
+                text = "Who was the first president of the United States?",
+                answerOptions = listOf("George Washington", "Thomas Jefferson", "Abraham Lincoln", "Benjamin Franklin"),
+                correctAnswer = "George Washington",
+                categoryId = historyId,
+                type = QuestionType.FILL
+            )
+        )
+
+        val scienceMathId = gameCategoryDao.addGameCategory(GameCategory(categoryName = "Science & Math"))
+        questionDao.addQuestion(
+            Question(
+                text = "Who was the first president of the United States?",
+                answerOptions = listOf("George Washington", "Thomas Jefferson", "Abraham Lincoln", "Benjamin Franklin"),
+                correctAnswer = "George Washington",
+                categoryId = historyId,
+                type = QuestionType.MATCH
+            )
+        )
+
+        val popCultureId = gameCategoryDao.addGameCategory(GameCategory(categoryName = "Pop Culture"))
+        questionDao.addQuestion(
+            Question(
+                text = "Who was the first president of the United States?",
+                answerOptions = listOf("George Washington", "Thomas Jefferson", "Abraham Lincoln", "Benjamin Franklin"),
+                correctAnswer = "George Washington",
+                categoryId = historyId,
+                type = QuestionType.REARRANGE
+            )
+        )
+
+        val sportsGamesId = gameCategoryDao.addGameCategory(GameCategory(categoryName = "Sports & Games"))
+        questionDao.addQuestion(
+            Question(
+                text = "Who was the first president of the United States?",
+                answerOptions = listOf("George Washington", "Thomas Jefferson", "Abraham Lincoln", "Benjamin Franklin"),
+                correctAnswer = "George Washington",
+                categoryId = historyId,
+                type = QuestionType.MC
+            )
+        )
+
+        val literatureId = gameCategoryDao.addGameCategory(GameCategory(categoryName = "Literature"))
+        questionDao.addQuestion(
+            Question(
+                text = "Who was the first president of the United States?",
+                answerOptions = listOf("George Washington", "Thomas Jefferson", "Abraham Lincoln", "Benjamin Franklin"),
+                correctAnswer = "George Washington",
+                categoryId = historyId,
+                type = QuestionType.FILL
+            )
+        )
+
+        val mixedKnowledgeId = gameCategoryDao.addGameCategory(GameCategory(categoryName = "Mixed Knowledge"))
+        questionDao.addQuestion(
+            Question(
+                text = "Who was the first president of the United States?",
+                answerOptions = listOf("George Washington", "Thomas Jefferson", "Abraham Lincoln", "Benjamin Franklin"),
+                correctAnswer = "George Washington",
+                categoryId = historyId,
+                type = QuestionType.MATCH
+            )
+        )
+    }
 }

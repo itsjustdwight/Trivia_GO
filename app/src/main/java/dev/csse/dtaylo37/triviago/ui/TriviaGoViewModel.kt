@@ -5,27 +5,43 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import dev.csse.dtaylo37.triviago.ui.data.GameCategory
+import dev.csse.dtaylo37.triviago.ui.data.Question
+import dev.csse.dtaylo37.triviago.ui.data.QuestionType
+import dev.csse.dtaylo37.triviago.ui.data.TriviaRepository
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
-class TriviaGoViewModel : ViewModel() {
+data class GameCategoryScreenUiState(
+    val gameCategories: List<GameCategory> = emptyList(),
+    val questionList: List<Question> = emptyList(),
+    val selectedGameCategory: Set<GameCategory> = emptySet()
+)
 
-    val gameCategoryList = mutableListOf<String>(
-        "History", "Geography", "Science & Math",
-        "Pop Culture", "Sports & Games", "Literature", "Mixed Knowledge"
-    )
 
-    enum class QuestionType { MC, FILL, MATCH, REARRANGE }
+class TriviaGoViewModel(
+    private val triviaRepo: TriviaRepository
+) : ViewModel() {
+    val uiState: StateFlow<GameCategoryScreenUiState> =
+        triviaRepo.getGameCategories().map {
+            GameCategoryScreenUiState(
+                gameCategories = it
+            )
+        }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5),
+                initialValue = GameCategoryScreenUiState()
+            )
 
-    data class TriviaQuestion(
-        val type: QuestionType,
-        val prompt: String,
-        val option: List<String>,
-        val correctIndex: Int = 0
-    )
-
-    var selectedCategory by mutableStateOf("")
+    var selectedCategory by mutableStateOf<GameCategory?>(null)
         private set
 
-    var questions by mutableStateOf<List<TriviaQuestion>>(emptyList())
+    var questions by mutableStateOf<List<Question>>(emptyList())
         private set
 
     var questionIndex by mutableIntStateOf(0)
@@ -37,37 +53,16 @@ class TriviaGoViewModel : ViewModel() {
     var lastCorrect by mutableStateOf<Boolean?>(null)
         private set
 
-    fun selectCategory(category: String) {
+    fun selectCategory(category: GameCategory) {
         selectedCategory = category
+        viewModelScope.launch {
+            triviaRepo.getQuestions(category.id).collect {
+                questions = it
+            }
+        }
     }
 
     fun startGame() {
-        questions = listOf(
-            TriviaQuestion(
-                QuestionType.MC,
-                "Sample Multiple Choice?",
-                listOf("A", "B", "C", "D"),
-                1
-            ),
-            TriviaQuestion(
-                QuestionType.FILL,
-                "Fill in the blank:___",
-                listOf("Trivia", "Food", "Sleep", "Math"),
-                0
-            ),
-            TriviaQuestion(
-                QuestionType.MATCH,
-                "Matching demo:",
-                listOf("A-1", "B-2", "C-3", "D-4"),
-                2
-            ),
-            TriviaQuestion(
-                QuestionType.REARRANGE,
-                "Rearrange demo:",
-                listOf("First", "Second", "Third", "Fourth"),
-                0
-            )
-        )
         questionIndex = 0
         selectedIndex = null
         lastCorrect = null
@@ -78,8 +73,9 @@ class TriviaGoViewModel : ViewModel() {
     }
 
     fun submitAnswer() {
-        val q = questions[questionIndex]
-        lastCorrect = (selectedIndex == q.correctIndex)
+        val q = questions.getOrNull(questionIndex) ?: return
+        // Basic check for Multiple Choice, adjust for other types as needed
+        lastCorrect = (selectedIndex != null && q.answerOptions.getOrNull(selectedIndex!!) == q.correctAnswer)
     }
 
     fun nextQuestion(): Boolean {
@@ -94,7 +90,7 @@ class TriviaGoViewModel : ViewModel() {
     }
 
     fun reset() {
-        selectedCategory = ""
+        selectedCategory = null
         questions = emptyList()
         questionIndex = 0
         selectedIndex = null
