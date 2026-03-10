@@ -27,7 +27,9 @@ import dev.csse.dtaylo37.triviago.R
 import dev.csse.dtaylo37.triviago.ui.components.GameScreenFrame
 import dev.csse.dtaylo37.triviago.ui.data.TriviaRepository
 import dev.csse.dtaylo37.triviago.ui.theme.TriviaGreen
+import dev.csse.dtaylo37.triviago.ui.theme.TriviaPurple
 import dev.csse.dtaylo37.triviago.ui.theme.TriviaRed
+import dev.csse.dtaylo37.triviago.ui.theme.TriviaTeal
 import dev.csse.dtaylo37.triviago.ui.theme.TriviaYellow
 
 @Composable
@@ -97,7 +99,7 @@ fun MultipleChoiceQuestionScreen(
                 Spacer(Modifier.height(12.dp))
 
                 AnswerTile(
-                    color = TriviaRed,
+                    color = TriviaPurple,
                     answerText = "Answer Here",
                     onClick = { viewModel.selectOption(0) }
                 )
@@ -105,7 +107,7 @@ fun MultipleChoiceQuestionScreen(
                 Spacer(Modifier.height(12.dp))
 
                 AnswerTile(
-                    color = TriviaRed,
+                    color = TriviaTeal,
                     answerText = "Answer Here",
                     onClick = { viewModel.selectOption(0) }
                 )
@@ -113,7 +115,7 @@ fun MultipleChoiceQuestionScreen(
                 Spacer(Modifier.height(12.dp))
 
                 AnswerTile(
-                    color = TriviaRed,
+                    color = TriviaGreen,
                     answerText = "Answer Here",
                     onClick = { viewModel.selectOption(0) }
                 )

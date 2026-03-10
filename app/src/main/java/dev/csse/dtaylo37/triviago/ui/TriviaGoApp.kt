@@ -137,6 +137,23 @@ fun TriviaGoApp(
                 )
             }
 
+            composable(Route.TrueFalse.path) {
+                TrueOrFalseQuestionScreen(
+                    viewModel = viewModel,
+                    onSubmit = {
+                        viewModel.submitAnswer()
+                        nav.navigate(Route.Transition.path)
+                    },
+                    onQuitHome = {
+                        nav.navigate(Route.Home.path) {
+                            popUpTo(Route.Home.path) {
+                                inclusive = true
+                            }
+                        }
+                    }
+                )
+            }
+
             composable(Route.Transition.path) {
                 NextQuestionTransitionScreen(
                     viewModel = viewModel,

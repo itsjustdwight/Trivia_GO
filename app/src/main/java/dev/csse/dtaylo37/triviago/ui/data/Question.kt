@@ -7,7 +7,8 @@ enum class QuestionType {
     MC,
     FILL,
     MATCH,
-    REARRANGE
+    REARRANGE,
+    TF
 }
 
 @Entity

@@ -39,16 +39,6 @@ android {
     buildFeatures {
         compose = true
     }
-    sourceSets {
-        getByName("main") {
-            assets {
-                srcDirs(
-                    "src\\main\\assets",
-                    "src\\main\\java\\dev\\csse\\dtaylo37\\triviago\\ui\\assets"
-                )
-            }
-        }
-    }
 }
 
 dependencies {

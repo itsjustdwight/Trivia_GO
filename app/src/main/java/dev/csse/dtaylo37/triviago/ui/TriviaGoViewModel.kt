@@ -12,6 +12,7 @@ import dev.csse.dtaylo37.triviago.ui.data.QuestionType
 import dev.csse.dtaylo37.triviago.ui.data.TriviaRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -53,11 +54,17 @@ class TriviaGoViewModel(
     var lastCorrect by mutableStateOf<Boolean?>(null)
         private set
 
-    fun selectCategory(category: GameCategory) {
-        selectedCategory = category
+    fun selectCategory(categoryName: String) {
         viewModelScope.launch {
-            triviaRepo.getQuestions(category.id).collect {
-                questions = it
+            val category = triviaRepo.getGameCategories().map { list ->
+                list.find { it.categoryName == categoryName }
+            }.firstOrNull()
+            
+            selectedCategory = category
+            if (category != null) {
+                triviaRepo.getQuestions(category.id).collect {
+                    questions = it
+                }
             }
         }
     }
@@ -74,7 +81,6 @@ class TriviaGoViewModel(
 
     fun submitAnswer() {
         val q = questions.getOrNull(questionIndex) ?: return
-        // Basic check for Multiple Choice, adjust for other types as needed
         lastCorrect = (selectedIndex != null && q.answerOptions.getOrNull(selectedIndex!!) == q.correctAnswer)
     }
 
@@ -104,6 +110,7 @@ class TriviaGoViewModel(
             QuestionType.FILL -> Route.FillBlank.path
             QuestionType.MATCH -> Route.Matching.path
             QuestionType.REARRANGE -> Route.Rearrange.path
+            QuestionType.TF -> Route.TrueFalse.path
         }
     }
 

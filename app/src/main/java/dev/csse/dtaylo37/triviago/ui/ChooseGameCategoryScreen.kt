@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -34,7 +33,6 @@ private val CatPopCulture = TriviaBlue
 private val CatSportsGames = TriviaYellow
 private val CatLiterature = TriviaGreen
 
-@Preview
 @Composable
 fun ChooseGameCategoryScreen(
     onCategorySelected: (String) -> Unit,
