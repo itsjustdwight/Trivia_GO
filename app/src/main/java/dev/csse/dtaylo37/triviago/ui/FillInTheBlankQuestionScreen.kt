@@ -117,6 +117,8 @@ fun FillInTheBlankQuestionScreen(
                 }
             }
 
+            Spacer(Modifier.height(12.dp))
+
             // Submit Button
             PrimaryButton(
                 text = "Submit",
