@@ -86,22 +86,22 @@ fun TriviaGoApp(
                 )
             }
 
-            composable(Route.FillBlank.path) {
-                FillInTheBlankQuestionScreen(
-                    viewModel = viewModel,
-                    onSubmit = {
-                        viewModel.submitAnswer()
-                        nav.navigate(Route.Transition.path)
-                    },
-                    onQuitHome = {
-                        nav.navigate(Route.Home.path) {
-                            popUpTo(Route.Home.path) {
-                                inclusive = true
-                            }
-                        }
-                    }
-                )
-            }
+//            composable(Route.FillBlank.path) {
+//                FillInTheBlankQuestionScreen(
+//                    viewModel = viewModel,
+//                    onSubmit = {
+//                        viewModel.submitAnswer()
+//                        nav.navigate(Route.Transition.path)
+//                    },
+//                    onQuitHome = {
+//                        nav.navigate(Route.Home.path) {
+//                            popUpTo(Route.Home.path) {
+//                                inclusive = true
+//                            }
+//                        }
+//                    }
+//                )
+//            }
 
             composable(Route.Matching.path) {
                 MatchingQuestionScreen(

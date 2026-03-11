@@ -73,6 +73,8 @@ fun MCQuestionScreen(
         Column(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            Spacer(Modifier.height(4.dp))
+            
             Image(
                 painter = painterResource(id = R.drawable.history_graphic),
                 contentDescription = "History Graphic",
@@ -117,7 +119,6 @@ fun MCQuestionScreen(
                         onClick = { selectedOption(index) }
                     )
                 }
-
             }
         }
     }

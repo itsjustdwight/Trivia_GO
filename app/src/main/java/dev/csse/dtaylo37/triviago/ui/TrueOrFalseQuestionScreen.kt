@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,24 +21,49 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.csse.dtaylo37.triviago.R
 import dev.csse.dtaylo37.triviago.ui.components.GameScreenFrame
 import dev.csse.dtaylo37.triviago.ui.theme.TriviaGreen
+import dev.csse.dtaylo37.triviago.ui.theme.TriviaPurple
 import dev.csse.dtaylo37.triviago.ui.theme.TriviaRed
+import dev.csse.dtaylo37.triviago.ui.theme.TriviaTeal
 import dev.csse.dtaylo37.triviago.ui.theme.TriviaYellow
 
 @Composable
 fun TrueOrFalseQuestionScreen(
     viewModel: TriviaGoViewModel,
     onSubmit: () -> Unit,
-    onQuitHome: () -> Unit
+    onQuitHome: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val currentQuestion = viewModel.questions.getOrNull(viewModel.questionIndex)
+
+    TFQuestionScreen(
+        categoryName = viewModel.selectedCategory?.categoryName ?: "Category Name",
+        questionText = currentQuestion?.text ?: "Loading Questions...",
+        answerOptions = currentQuestion?.answerOptions ?: emptyList(),
+        selectedOption = {
+            viewModel.selectOption(it)
+        },
+        modifier = modifier
+    )
+}
+
+@Composable
+fun TFQuestionScreen(
+    categoryName: String,
+    questionText: String,
+    answerOptions: List<String>,
+    selectedOption: (Int) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     GameScreenFrame(
         headerContent = {
             Text(
-                text = "{viewModel.selectedCategory}",
+                text = categoryName,
                 color = Color.White,
                 fontSize = 36.sp,
                 fontWeight = FontWeight.Bold
@@ -45,6 +71,8 @@ fun TrueOrFalseQuestionScreen(
         }
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Spacer(Modifier.height(4.dp))
+
             Image(
                 painter = painterResource(id = R.drawable.geography_graphic),
                 contentDescription = "Geography Graphic",
@@ -61,40 +89,34 @@ fun TrueOrFalseQuestionScreen(
                     .height(20.dp)
                     .clip(RoundedCornerShape(20.dp))
                     .background(
-                        brush = Brush.horizontalGradient(listOf(TriviaGreen, TriviaYellow, TriviaRed))
+                        brush = Brush.horizontalGradient(
+                            listOf(TriviaRed, TriviaYellow, TriviaGreen)
+                        )
                     )
             )
             Text(
                 text = "Time Left: ",
                 color = Color.Black,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium
             )
-
-            Spacer(Modifier.height(12.dp))
 
             // Question
             Text(
-                text = "Question Here",
+                text = questionText,
                 color = Color.Black,
-                fontSize = 28.sp,
+                fontSize = 24.sp,
                 fontWeight = FontWeight.Bold
             )
 
-            Spacer(Modifier.height(12.dp))
-
             // Answer Choices
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+                val colors = listOf(TriviaGreen, TriviaRed)
+                answerOptions.forEachIndexed { index, option ->
                     AnswerTile(
-                        color = TriviaGreen,
-                        answerText = "True",
-                        onClick = { viewModel.selectOption(0) }
-                    )
-                    AnswerTile(
-                        color = TriviaRed,
-                        answerText = "False",
-                        onClick = { viewModel.selectOption(0) }
+                        color = colors.getOrElse(index) { Color.Gray },
+                        answerText = option,
+                        onClick = { selectedOption(index) }
                     )
                 }
             }
@@ -112,6 +134,7 @@ private fun AnswerTile(
     Box(
         modifier = modifier
             .height(330.dp)
+            .width(165.dp)
             .clip(RoundedCornerShape(20.dp))
             .background(color)
             .clickable { onClick() },
@@ -124,4 +147,15 @@ private fun AnswerTile(
             fontWeight = FontWeight.Bold
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TrueOrFalseQuestionScreenPreview() {
+    TFQuestionScreen(
+        categoryName = "Geography",
+        questionText = "Earth is flat",
+        answerOptions = listOf("True", "False"),
+        selectedOption = {}
+    )
 }
