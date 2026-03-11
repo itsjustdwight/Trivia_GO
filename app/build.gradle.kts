@@ -54,6 +54,10 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.material3)
+    
+    // Added for Icons support
+    implementation("androidx.compose.material:material-icons-core")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

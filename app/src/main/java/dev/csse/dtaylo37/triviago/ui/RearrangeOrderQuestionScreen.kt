@@ -15,8 +15,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Icon
-import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -31,6 +32,8 @@ import androidx.compose.ui.unit.sp
 import dev.csse.dtaylo37.triviago.R
 import dev.csse.dtaylo37.triviago.ui.components.GameScreenFrame
 import dev.csse.dtaylo37.triviago.ui.components.PrimaryButton
+import dev.csse.dtaylo37.triviago.ui.theme.BackgroundPurple
+import dev.csse.dtaylo37.triviago.ui.theme.TriviaBlue
 import dev.csse.dtaylo37.triviago.ui.theme.TriviaGreen
 import dev.csse.dtaylo37.triviago.ui.theme.TriviaPurple
 import dev.csse.dtaylo37.triviago.ui.theme.TriviaRed
@@ -55,7 +58,7 @@ fun RearrangeOrderQuestionScreen(
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Image(
-                painter = painterResource(id = R.drawable.geography_graphic),
+                painter = painterResource(id = R.drawable.scienceandmath_graphic),
                 contentDescription = "Geography Graphic",
                 modifier = Modifier
                     .fillMaxWidth()
@@ -98,27 +101,48 @@ fun RearrangeOrderQuestionScreen(
                     AnswerTile(
                         color = TriviaRed,
                         answerText = "Answer Here",
-                        onClick = { viewModel.selectOption(0) }
                     )
+
+                    Spacer(Modifier.height(12.dp))
+
                     AnswerTile(
                         color = TriviaPurple,
                         answerText = "Answer Here",
-                        onClick = { viewModel.selectOption(0) }
                     )
-                }
 
-                Spacer(Modifier.height(12.dp))
+                    Spacer(Modifier.height(12.dp))
 
-                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     AnswerTile(
                         color = TriviaTeal,
                         answerText = "Answer Here",
-                        onClick = { viewModel.selectOption(0) }
                     )
+
+                    Spacer(Modifier.height(12.dp))
+
                     AnswerTile(
                         color = TriviaGreen,
                         answerText = "Answer Here",
-                        onClick = { viewModel.selectOption(0) }
+                    )
+
+                    Spacer(Modifier.height(12.dp))
+
+                    AnswerTile(
+                        color = TriviaBlue,
+                        answerText = "Answer Here",
+                    )
+
+                    Spacer(Modifier.height(12.dp))
+
+                    AnswerTile(
+                        color = TriviaYellow,
+                        answerText = "Answer Here",
+                    )
+
+                    Spacer(Modifier.height(12.dp))
+
+                    AnswerTile(
+                        color = BackgroundPurple,
+                        answerText = "Answer Here",
                     )
                 }
             }
