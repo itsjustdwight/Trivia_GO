@@ -39,23 +39,46 @@ fun MultipleChoiceQuestionScreen(
     onQuitHome: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val currentQuestion = viewModel.questions.getOrNull(viewModel.questionIndex)
+
+    MCQuestionScreen(
+        categoryName = viewModel.selectedCategory?.categoryName ?: "Category Name",
+        questionText = currentQuestion?.text ?: "Loading Questions...",
+        answerOptions = currentQuestion?.answerOptions ?: emptyList(),
+        selectedOption = {
+            viewModel.selectOption(it)
+        },
+        modifier = modifier
+    )
+}
+
+@Composable
+fun MCQuestionScreen(
+    categoryName: String,
+    questionText: String,
+    answerOptions: List<String>,
+    selectedOption: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
     GameScreenFrame(
         headerContent = {
             Text(
-                text = "{viewModel.selectedCategory}",
+                text = categoryName,
                 color = Color.White,
                 fontSize = 36.sp,
                 fontWeight = FontWeight.Bold
             )
         }
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
             Image(
                 painter = painterResource(id = R.drawable.history_graphic),
                 contentDescription = "History Graphic",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
+                    .height(225.dp)
                     .clip(RoundedCornerShape(20.dp))
             )
 
@@ -66,59 +89,35 @@ fun MultipleChoiceQuestionScreen(
                     .height(20.dp)
                     .clip(RoundedCornerShape(20.dp))
                     .background(
-                        brush = Brush.horizontalGradient(listOf(TriviaGreen, TriviaYellow, TriviaRed))
+                        brush = Brush.horizontalGradient(listOf(TriviaRed, TriviaYellow, TriviaGreen))
                     )
             )
             Text(
                 text = "Time Left: ",
                 color = Color.Black,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium
             )
-
-            Spacer(Modifier.height(12.dp))
 
             // Question
             Text(
-                text = "Question Here",
+                text = questionText,
                 color = Color.Black,
-                fontSize = 28.sp,
+                fontSize = 24.sp,
                 fontWeight = FontWeight.Bold
             )
 
-            Spacer(Modifier.height(12.dp))
-
             // Answer Choices
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                AnswerTile(
-                    color = TriviaRed,
-                    answerText = "Answer Here",
-                    onClick = { viewModel.selectOption(0) }
-                )
+            Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                val colors = listOf(TriviaRed, TriviaPurple, TriviaTeal, TriviaGreen)
+                answerOptions.forEachIndexed { index, option ->
+                    AnswerTile(
+                        color = colors.getOrElse(index) { Color.Gray },
+                        answerText = option,
+                        onClick = { selectedOption(index) }
+                    )
+                }
 
-                Spacer(Modifier.height(12.dp))
-
-                AnswerTile(
-                    color = TriviaPurple,
-                    answerText = "Answer Here",
-                    onClick = { viewModel.selectOption(0) }
-                )
-
-                Spacer(Modifier.height(12.dp))
-
-                AnswerTile(
-                    color = TriviaTeal,
-                    answerText = "Answer Here",
-                    onClick = { viewModel.selectOption(0) }
-                )
-
-                Spacer(Modifier.height(12.dp))
-
-                AnswerTile(
-                    color = TriviaGreen,
-                    answerText = "Answer Here",
-                    onClick = { viewModel.selectOption(0) }
-                )
             }
         }
     }
@@ -134,7 +133,7 @@ private fun AnswerTile(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(100.dp)
+            .height(60.dp)
             .clip(RoundedCornerShape(20.dp))
             .background(color)
             .clickable { onClick() },
@@ -147,4 +146,15 @@ private fun AnswerTile(
             fontWeight = FontWeight.Bold
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MultipleChoiceQuestionScreenPreview() {
+    MCQuestionScreen(
+        categoryName = "History",
+        questionText = "Who was the first president of the United States?",
+        answerOptions = listOf("George Washington", "Thomas Jefferson", "Abraham Lincoln", "Benjamin Franklin"),
+        selectedOption = {}
+    )
 }

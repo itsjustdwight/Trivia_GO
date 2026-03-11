@@ -7,9 +7,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import dev.csse.dtaylo37.triviago.ui.assets.FigmaAssets
+import dev.csse.dtaylo37.triviago.ui.theme.BackgroundTan
 
 private val HeaderBrown = Color(0xFF5B4D4D)
 
@@ -19,17 +21,22 @@ fun GameScreenFrame(
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    Column(modifier = modifier.fillMaxSize().background(Color.White)) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color.White)
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp)
+                .height(220.dp)
                 .background(HeaderBrown)
         ) {
             Row(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 24.dp, vertical = 22.dp),
+                    .fillMaxWidth()
+                    .padding(top = 20.dp, start = 20.dp, end = 20.dp),
+                horizontalArrangement = Arrangement.Center,
                 content = headerContent
             )
         }
@@ -37,26 +44,22 @@ fun GameScreenFrame(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .offset(y = (-100).dp)
+                .padding(top = 85.dp) // Starts 120dp from top, overlapping the 220dp header
+                .clip(RoundedCornerShape(topStart = 35.dp, topEnd = 35.dp))
+                .background(BackgroundTan)
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
-            )
-
             AsyncImage(
                 model = FigmaAssets.GameScreensBg,
                 contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.FillBounds,
+                alpha = 0.5f
             )
 
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = 110.dp, start = 20.dp, end = 20.dp, bottom = 20.dp),
+                    .padding(24.dp),
                 content = content
             )
         }
