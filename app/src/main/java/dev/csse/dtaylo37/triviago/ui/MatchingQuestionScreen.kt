@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.csse.dtaylo37.triviago.R
@@ -37,13 +38,39 @@ import dev.csse.dtaylo37.triviago.ui.theme.TriviaYellow
 @Composable
 fun MatchingQuestionScreen(
     viewModel: TriviaGoViewModel,
+    onQuitHome: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val currentQuestion = viewModel.questions.getOrNull(viewModel.questionIndex)
+
+    MATCHQuestionScreen(
+        categoryName = viewModel.selectedCategory?.categoryName ?: "Category Name",
+        questionText = currentQuestion?.text ?: "Loading Questions...",
+        answerOptions = currentQuestion?.answerOptions ?: emptyList(),
+        selectedOption = {
+            viewModel.selectOption(it)
+        },
+        modifier = modifier,
+        onSubmit = {
+            viewModel.submitAnswer()
+//            onQuitHome()
+        }
+    )
+}
+
+@Composable
+fun MATCHQuestionScreen(
+    categoryName: String,
+    questionText: String,
+    answerOptions: List<String>,
+    selectedOption: (Int) -> Unit,
     onSubmit: () -> Unit,
-    onQuitHome: () -> Unit
+    modifier: Modifier = Modifier
 ) {
     GameScreenFrame(
         headerContent = {
             Text(
-                text = "{viewModel.selectedCategory}",
+                text = categoryName,
                 color = Color.White,
                 fontSize = 36.sp,
                 fontWeight = FontWeight.Bold
@@ -51,9 +78,11 @@ fun MatchingQuestionScreen(
         }
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Spacer(Modifier.height(4.dp))
+
             Image(
-                painter = painterResource(id = R.drawable.history_graphic),
-                contentDescription = "History Graphic",
+                painter = painterResource(id = R.drawable.scienceandmath_graphic),
+                contentDescription = "Science & Math Graphic",
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
@@ -67,27 +96,23 @@ fun MatchingQuestionScreen(
                     .height(20.dp)
                     .clip(RoundedCornerShape(20.dp))
                     .background(
-                        brush = Brush.horizontalGradient(listOf(TriviaGreen, TriviaYellow, TriviaRed))
+                        brush = Brush.horizontalGradient(listOf(TriviaRed, TriviaYellow, TriviaGreen))
                     )
             )
             Text(
                 text = "Time Left: ",
                 color = Color.Black,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium
             )
-
-            Spacer(Modifier.height(12.dp))
 
             // Question
             Text(
-                text = "Question Here",
+                text = questionText,
                 color = Color.Black,
-                fontSize = 28.sp,
+                fontSize = 24.sp,
                 fontWeight = FontWeight.Bold
             )
-
-            Spacer(Modifier.height(12.dp))
 
             // Answer Choices
             val colors = listOf(TriviaRed, TriviaPurple, TriviaTeal, TriviaGreen, TriviaYellow)
@@ -123,8 +148,6 @@ fun MatchingQuestionScreen(
                 }
             }
 
-            Spacer(Modifier.height(12.dp))
-
             // Submit Button
             PrimaryButton(
                 text = "Submit",
@@ -144,7 +167,7 @@ private fun AnswerTile(
 ) {
     Box(
         modifier = modifier
-            .height(60.dp)
+            .height(45.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(color)
             .clickable { onClick() },
@@ -161,8 +184,20 @@ private fun AnswerTile(
         Text(
             text = answerText,
             color = Color.White,
-            fontSize = 28.sp,
+            fontSize = 24.sp,
             fontWeight = FontWeight.Bold
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MatchingQuestionScreenPreview() {
+    MATCHQuestionScreen(
+        categoryName = "Science & Math",
+        questionText = "Match the following pairs of elements on the periodic table:",
+        answerOptions = listOf("Fe", "Iron"),
+        selectedOption = {},
+        onSubmit = {}
+    )
 }
