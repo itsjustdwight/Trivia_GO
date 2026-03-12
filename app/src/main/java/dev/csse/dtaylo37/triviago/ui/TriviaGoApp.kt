@@ -106,10 +106,10 @@ fun TriviaGoApp(
             composable(Route.Matching.path) {
                 MatchingQuestionScreen(
                     viewModel = viewModel,
-                    onSubmit = {
-                        viewModel.submitAnswer()
-                        nav.navigate(Route.Transition.path)
-                    },
+//                    onSubmit = {
+//                        viewModel.submitAnswer()
+//                        nav.navigate(Route.Transition.path)
+//                    },
                     onQuitHome = {
                         nav.navigate(Route.Home.path) {
                             popUpTo(Route.Home.path) {

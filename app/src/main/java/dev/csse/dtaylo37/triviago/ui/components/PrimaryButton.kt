@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import dev.csse.dtaylo37.triviago.ui.theme.BackgroundPurple
 
 @Composable
@@ -21,8 +22,14 @@ fun PrimaryButton(text: String, onClick: () -> Unit) {
             .fillMaxWidth()
             .height(48.dp),
         shape = RoundedCornerShape(20.dp),
-        colors = ButtonDefaults.buttonColors(contentColor = Color.White)
+        colors = ButtonDefaults.buttonColors(
+            containerColor = BackgroundPurple,
+            contentColor = Color.White
+        )
     ) {
-        Text(text)
+        Text(
+            text,
+            fontSize = 22.sp
+        )
     }
 }

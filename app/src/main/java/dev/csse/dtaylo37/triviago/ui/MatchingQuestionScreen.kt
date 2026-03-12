@@ -78,11 +78,20 @@ fun MATCHQuestionScreen(
         }
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(1.dp))
 
+            val headerImages = listOf(
+                R.drawable.history_graphic,
+                R.drawable.geography_graphic,
+                R.drawable.sciencemath_graphic,
+                R.drawable.popculture_graphic,
+                R.drawable.sportsgames_graphic,
+                R.drawable.literature_graphic,
+                R.drawable.mixedknowledge_graphic
+            )
             Image(
-                painter = painterResource(id = R.drawable.scienceandmath_graphic),
-                contentDescription = "Science & Math Graphic",
+                painter = painterResource(id = headerImages.random()),
+                contentDescription = "Subject Graphic",
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
@@ -110,7 +119,7 @@ fun MATCHQuestionScreen(
             Text(
                 text = questionText,
                 color = Color.Black,
-                fontSize = 24.sp,
+                fontSize = 22.sp,
                 fontWeight = FontWeight.Bold
             )
 
@@ -124,7 +133,7 @@ fun MATCHQuestionScreen(
                 "Part A" to "Part B"
             )
 
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 pairs.forEachIndexed { index, pair ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -167,7 +176,7 @@ private fun AnswerTile(
 ) {
     Box(
         modifier = modifier
-            .height(45.dp)
+            .height(40.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(color)
             .clickable { onClick() },
@@ -184,8 +193,8 @@ private fun AnswerTile(
         Text(
             text = answerText,
             color = Color.White,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Medium
         )
     }
 }

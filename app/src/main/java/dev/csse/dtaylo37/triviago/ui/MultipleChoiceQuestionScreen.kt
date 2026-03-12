@@ -74,10 +74,19 @@ fun MCQuestionScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Spacer(Modifier.height(4.dp))
-            
+
+            val headerImages = listOf(
+                R.drawable.history_graphic,
+                R.drawable.geography_graphic,
+                R.drawable.sciencemath_graphic,
+                R.drawable.popculture_graphic,
+                R.drawable.sportsgames_graphic,
+                R.drawable.literature_graphic,
+                R.drawable.mixedknowledge_graphic
+            )
             Image(
-                painter = painterResource(id = R.drawable.history_graphic),
-                contentDescription = "History Graphic",
+                painter = painterResource(id = headerImages.random()),
+                contentDescription = "Subject Graphic",
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(225.dp)
@@ -105,7 +114,7 @@ fun MCQuestionScreen(
             Text(
                 text = questionText,
                 color = Color.Black,
-                fontSize = 24.sp,
+                fontSize = 22.sp,
                 fontWeight = FontWeight.Bold
             )
 
@@ -144,8 +153,8 @@ private fun AnswerTile(
         Text(
             text = answerText,
             color = Color.White,
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold
+            fontSize = 22.sp,
+            fontWeight = FontWeight.Medium
         )
     }
 }
