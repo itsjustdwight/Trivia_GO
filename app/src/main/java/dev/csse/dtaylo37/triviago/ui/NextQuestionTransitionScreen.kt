@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.csse.dtaylo37.triviago.R
@@ -32,12 +33,28 @@ import dev.csse.dtaylo37.triviago.ui.theme.TriviaYellow
 fun NextQuestionTransitionScreen(
     viewModel: TriviaGoViewModel,
     onNext: () -> Unit,
-    onHome: () -> Unit
+    onHome: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    TransitionScreen(
+        categoryName = viewModel.selectedCategory?.categoryName ?: "Category Name",
+        onNext = onNext,
+        onHome = onHome,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun TransitionScreen(
+    categoryName: String,
+    onNext: () -> Unit,
+    onHome: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     GameScreenFrame(
         headerContent = {
             Text(
-                text = "{viewModel.selectedCategory}",
+                text = categoryName,
                 color = Color.White,
                 fontSize = 36.sp,
                 fontWeight = FontWeight.Bold
@@ -45,9 +62,20 @@ fun NextQuestionTransitionScreen(
         }
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Spacer(Modifier.height(1.dp))
+
+            val headerImages = listOf(
+                R.drawable.history_graphic,
+                R.drawable.geography_graphic,
+                R.drawable.sciencemath_graphic,
+                R.drawable.popculture_graphic,
+                R.drawable.sportsgames_graphic,
+                R.drawable.literature_graphic,
+                R.drawable.mixedknowledge_graphic
+            )
             Image(
-                painter = painterResource(id = R.drawable.history_graphic),
-                contentDescription = "History Graphic",
+                painter = painterResource(id = headerImages.random()),
+                contentDescription = "Subject Graphic",
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
@@ -61,14 +89,14 @@ fun NextQuestionTransitionScreen(
                     .height(20.dp)
                     .clip(RoundedCornerShape(20.dp))
                     .background(
-                        brush = Brush.horizontalGradient(listOf(TriviaGreen, TriviaYellow, TriviaRed))
+                        brush = Brush.horizontalGradient(listOf(TriviaRed, TriviaYellow, TriviaGreen))
                     )
             )
             Text(
                 text = "Time Left: ",
                 color = Color.Black,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium
             )
 
             Spacer(Modifier.height(12.dp))
@@ -78,17 +106,32 @@ fun NextQuestionTransitionScreen(
                 text = "Message of congratulations\n" +
                         "or encouragement",
                 color = Color.Black,
-                fontSize = 28.sp,
+                fontSize = 24.sp,
                 fontWeight = FontWeight.Medium
             )
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(164.dp))
 
             // Submit Button
             PrimaryButton(
                 text = "Next Question",
                 onClick = onNext
             )
+
+            // Home Button
+            PrimaryButton(
+                text = "Back to Home",
+                onClick = onHome
+            )
         }
     }
+}
+@Preview(showBackground = true)
+@Composable
+fun NextQuestionTransitionScreenPreview() {
+    TransitionScreen(
+        categoryName = "Category Name",
+        onNext = {},
+        onHome = {}
+    )
 }
