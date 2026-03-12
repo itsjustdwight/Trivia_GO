@@ -112,6 +112,7 @@ fun TFQuestionScreen(
             // Answer Choices
             Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
                 val colors = listOf(TriviaGreen, TriviaRed)
+
                 answerOptions.forEachIndexed { index, option ->
                     AnswerTile(
                         color = colors.getOrElse(index) { Color.Gray },

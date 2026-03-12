@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.csse.dtaylo37.triviago.R
@@ -44,12 +45,39 @@ import dev.csse.dtaylo37.triviago.ui.theme.TriviaYellow
 fun RearrangeOrderQuestionScreen(
     viewModel: TriviaGoViewModel,
     onSubmit: () -> Unit,
-    onQuitHome: () -> Unit
+    onQuitHome: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val currentQuestion = viewModel.questions.getOrNull(viewModel.questionIndex)
+
+    REARRANGEQuestionScreen(
+        categoryName = viewModel.selectedCategory?.categoryName ?: "Category Name",
+        questionText = currentQuestion?.text ?: "Loading Questions...",
+        answerOptions = currentQuestion?.answerOptions ?: emptyList(),
+        selectedOption = {
+            viewModel.selectOption(it)
+        },
+        modifier = modifier,
+        onSubmit = {
+            viewModel.submitAnswer()
+//            onQuitHome()
+        }
+    )
+}
+
+@Composable
+fun REARRANGEQuestionScreen(
+    categoryName: String,
+    questionText: String,
+    answerOptions: List<String>,
+    selectedOption: (Int) -> Unit,
+    onSubmit: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     GameScreenFrame(
         headerContent = {
             Text(
-                text = "{viewModel.selectedCategory}",
+                text = categoryName,
                 color = Color.White,
                 fontSize = 36.sp,
                 fontWeight = FontWeight.Bold
@@ -57,8 +85,10 @@ fun RearrangeOrderQuestionScreen(
         }
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Spacer(Modifier.height(4.dp))
+
             Image(
-                painter = painterResource(id = R.drawable.scienceandmath_graphic),
+                painter = painterResource(id = R.drawable.popculture_graphic),
                 contentDescription = "Geography Graphic",
                 modifier = Modifier
                     .fillMaxWidth()
@@ -73,81 +103,36 @@ fun RearrangeOrderQuestionScreen(
                     .height(20.dp)
                     .clip(RoundedCornerShape(20.dp))
                     .background(
-                        brush = Brush.horizontalGradient(listOf(TriviaGreen, TriviaYellow, TriviaRed))
+                        brush = Brush.horizontalGradient(listOf(TriviaRed, TriviaYellow, TriviaGreen))
                     )
             )
             Text(
                 text = "Time Left: ",
                 color = Color.Black,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium
             )
 
-            Spacer(Modifier.height(12.dp))
 
             // Question
             Text(
-                text = "Question Here",
+                text = questionText,
                 color = Color.Black,
-                fontSize = 28.sp,
+                fontSize = 24.sp,
                 fontWeight = FontWeight.Bold
             )
 
-            Spacer(Modifier.height(12.dp))
-
             // Answer Choices
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                val colors = listOf(TriviaRed, TriviaPurple, TriviaTeal, TriviaGreen, TriviaYellow)
+
+                answerOptions.forEachIndexed { index, option ->
                     AnswerTile(
-                        color = TriviaRed,
-                        answerText = "Answer Here",
-                    )
-
-                    Spacer(Modifier.height(12.dp))
-
-                    AnswerTile(
-                        color = TriviaPurple,
-                        answerText = "Answer Here",
-                    )
-
-                    Spacer(Modifier.height(12.dp))
-
-                    AnswerTile(
-                        color = TriviaTeal,
-                        answerText = "Answer Here",
-                    )
-
-                    Spacer(Modifier.height(12.dp))
-
-                    AnswerTile(
-                        color = TriviaGreen,
-                        answerText = "Answer Here",
-                    )
-
-                    Spacer(Modifier.height(12.dp))
-
-                    AnswerTile(
-                        color = TriviaBlue,
-                        answerText = "Answer Here",
-                    )
-
-                    Spacer(Modifier.height(12.dp))
-
-                    AnswerTile(
-                        color = TriviaYellow,
-                        answerText = "Answer Here",
-                    )
-
-                    Spacer(Modifier.height(12.dp))
-
-                    AnswerTile(
-                        color = BackgroundPurple,
-                        answerText = "Answer Here",
+                        color = colors.getOrElse(index) { Color.Gray },
+                        answerText = option
                     )
                 }
             }
-
-            Spacer(Modifier.height(12.dp))
 
             // Submit Button
             PrimaryButton(
@@ -167,10 +152,10 @@ private fun AnswerTile(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(60.dp)
+            .height(40.dp)
             .clip(RoundedCornerShape(20.dp))
             .background(color)
-            .padding(horizontal = 24.dp),
+            .padding(horizontal = 20.dp),
         contentAlignment = Alignment.Center
     ) {
         Row(
@@ -184,8 +169,8 @@ private fun AnswerTile(
             Text(
                 text = answerText,
                 color = Color.White,
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Medium
             )
 
             Icon(
@@ -196,4 +181,16 @@ private fun AnswerTile(
             )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun RearrangeOrderQuestionScreenPreview() {
+    REARRANGEQuestionScreen(
+        categoryName = "Pop Culture",
+        questionText = "Highest grossing movie franchises of all time",
+        answerOptions = listOf("Star Wars", "Harry Potter", "Lord of the Rings", "The Matrix", "The MCU"),
+        selectedOption = {},
+        onSubmit = {}
+    )
 }

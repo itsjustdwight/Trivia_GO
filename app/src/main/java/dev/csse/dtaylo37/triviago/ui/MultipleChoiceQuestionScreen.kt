@@ -112,6 +112,7 @@ fun MCQuestionScreen(
             // Answer Choices
             Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
                 val colors = listOf(TriviaRed, TriviaPurple, TriviaTeal, TriviaGreen)
+
                 answerOptions.forEachIndexed { index, option ->
                     AnswerTile(
                         color = colors.getOrElse(index) { Color.Gray },
