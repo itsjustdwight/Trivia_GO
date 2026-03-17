@@ -8,7 +8,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class TriviaRepository(context : Context) {
+class TriviaRepository(context: Context) {
+
     private val databaseCallback = object : RoomDatabase.Callback() {
         override fun onCreate(db: SupportSQLiteDatabase) {
             super.onCreate(db)
@@ -24,7 +25,7 @@ class TriviaRepository(context : Context) {
         TriviaDatabase::class.java,
         "trivia.db"
     )
-        .fallbackToDestructiveMigration() // Added to handle schema changes like adding 'type'
+        .fallbackToDestructiveMigration()
         .addCallback(databaseCallback)
         .build()
 
@@ -60,7 +61,12 @@ class TriviaRepository(context : Context) {
         questionDao.addQuestion(
             Question(
                 text = "Who was the first president of the United States?",
-                answerOptions = listOf("George Washington", "Thomas Jefferson", "Abraham Lincoln", "Benjamin Franklin"),
+                answerOptions = listOf(
+                    "George Washington",
+                    "Thomas Jefferson",
+                    "Abraham Lincoln",
+                    "Benjamin Franklin"
+                ),
                 correctAnswer = "George Washington",
                 categoryId = historyId,
                 type = QuestionType.MC
@@ -70,10 +76,10 @@ class TriviaRepository(context : Context) {
         val geographyId = gameCategoryDao.addGameCategory(GameCategory(categoryName = "Geography"))
         questionDao.addQuestion(
             Question(
-                text = "Who was the first president of the United States?",
-                answerOptions = listOf("George Washington", "Thomas Jefferson", "Abraham Lincoln", "Benjamin Franklin"),
-                correctAnswer = "George Washington",
-                categoryId = historyId,
+                text = "What is the capital of Japan?",
+                answerOptions = listOf("Beijing", "Seoul", "Tokyo", "Bangkok"),
+                correctAnswer = "Tokyo",
+                categoryId = geographyId,
                 type = QuestionType.MC
             )
         )
@@ -81,10 +87,10 @@ class TriviaRepository(context : Context) {
         val scienceMathId = gameCategoryDao.addGameCategory(GameCategory(categoryName = "Science & Math"))
         questionDao.addQuestion(
             Question(
-                text = "Who was the first president of the United States?",
-                answerOptions = listOf("George Washington", "Thomas Jefferson", "Abraham Lincoln", "Benjamin Franklin"),
-                correctAnswer = "George Washington",
-                categoryId = historyId,
+                text = "What planet is known as the Red Planet?",
+                answerOptions = listOf("Venus", "Mars", "Jupiter", "Mercury"),
+                correctAnswer = "Mars",
+                categoryId = scienceMathId,
                 type = QuestionType.MC
             )
         )
@@ -92,10 +98,10 @@ class TriviaRepository(context : Context) {
         val popCultureId = gameCategoryDao.addGameCategory(GameCategory(categoryName = "Pop Culture"))
         questionDao.addQuestion(
             Question(
-                text = "Who was the first president of the United States?",
-                answerOptions = listOf("George Washington", "Thomas Jefferson", "Abraham Lincoln", "Benjamin Franklin"),
-                correctAnswer = "George Washington",
-                categoryId = historyId,
+                text = "Which superhero is known as the Dark Knight?",
+                answerOptions = listOf("Superman", "Batman", "Spider-Man", "Iron Man"),
+                correctAnswer = "Batman",
+                categoryId = popCultureId,
                 type = QuestionType.MC
             )
         )
@@ -103,10 +109,10 @@ class TriviaRepository(context : Context) {
         val sportsGamesId = gameCategoryDao.addGameCategory(GameCategory(categoryName = "Sports & Games"))
         questionDao.addQuestion(
             Question(
-                text = "Who was the first president of the United States?",
-                answerOptions = listOf("George Washington", "Thomas Jefferson", "Abraham Lincoln", "Benjamin Franklin"),
-                correctAnswer = "George Washington",
-                categoryId = historyId,
+                text = "How many players are on a standard basketball team on the court at one time?",
+                answerOptions = listOf("4", "5", "6", "7"),
+                correctAnswer = "5",
+                categoryId = sportsGamesId,
                 type = QuestionType.MC
             )
         )
@@ -114,10 +120,15 @@ class TriviaRepository(context : Context) {
         val literatureId = gameCategoryDao.addGameCategory(GameCategory(categoryName = "Literature"))
         questionDao.addQuestion(
             Question(
-                text = "Who was the first president of the United States?",
-                answerOptions = listOf("George Washington", "Thomas Jefferson", "Abraham Lincoln", "Benjamin Franklin"),
-                correctAnswer = "George Washington",
-                categoryId = historyId,
+                text = "Who wrote 'Romeo and Juliet'?",
+                answerOptions = listOf(
+                    "Charles Dickens",
+                    "William Shakespeare",
+                    "Mark Twain",
+                    "Jane Austen"
+                ),
+                correctAnswer = "William Shakespeare",
+                categoryId = literatureId,
                 type = QuestionType.MC
             )
         )
@@ -125,11 +136,11 @@ class TriviaRepository(context : Context) {
         val mixedKnowledgeId = gameCategoryDao.addGameCategory(GameCategory(categoryName = "Mixed Knowledge"))
         questionDao.addQuestion(
             Question(
-                text = "Who was the first president of the United States?",
-                answerOptions = listOf("George Washington", "Thomas Jefferson", "Abraham Lincoln", "Benjamin Franklin"),
-                correctAnswer = "George Washington",
-                categoryId = historyId,
-                type = QuestionType.MC
+                text = "True or False: Water boils at 100 degrees Celsius at sea level.",
+                answerOptions = listOf("True", "False"),
+                correctAnswer = "True",
+                categoryId = mixedKnowledgeId,
+                type = QuestionType.TF
             )
         )
     }

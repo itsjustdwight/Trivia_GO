@@ -1,19 +1,43 @@
 package dev.csse.dtaylo37.triviago.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoStories
+import androidx.compose.material.icons.filled.Calculate
+import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.Movie
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.SportsEsports
+import androidx.compose.material.icons.filled.SportsFootball
+import androidx.compose.material.icons.filled.Timeline
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import dev.csse.dtaylo37.triviago.R
 import dev.csse.dtaylo37.triviago.ui.assets.FigmaAssets
 import dev.csse.dtaylo37.triviago.ui.components.GameScreenFrame
 import dev.csse.dtaylo37.triviago.ui.theme.TriviaBlue
@@ -48,63 +72,90 @@ fun ChooseGameCategoryScreen(
             )
         }
     ) {
-        Text(
-            text = "Choose a Category to Start:",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(top = 8.dp, bottom = 18.dp),
-            color = Color.Black
-        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(24.dp))
+                .paint(
+                    painter = painterResource(id = R.drawable.trivia_game_background),
+                    contentScale = ContentScale.Crop
+                )
+                .padding(16.dp)
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(HeaderBrown)
+                        .padding(vertical = 12.dp, horizontal = 16.dp),
+                    contentAlignment = Alignment.Center
+                ){
+                    Text(
+                        text = "Choose a Category to Start:",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
 
-        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
 
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                CategoryTile(
-                    color = CatHistory,
-                    iconUrl = FigmaAssets.IconHistory,
-                    onClick = { onCategorySelected("History") },
-                    modifier = Modifier.weight(1f)
-                )
-                CategoryTile(
-                    color = CatGeography,
-                    iconUrl = FigmaAssets.IconGeography,
-                    onClick = { onCategorySelected("Geography") },
-                    modifier = Modifier.weight(1f)
-                )
-            }
+                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                        CategoryTile(
+                            color = CatHistory,
+                            icon = Icons.Filled.Timeline,
+                            label = "History",
+                            onClick = { onCategorySelected("History") },
+                            modifier = Modifier.weight(1f)
+                        )
+                        CategoryTile(
+                            color = CatGeography,
+                            icon = Icons.Filled.Language,
+                            label = "Geography",
+                            onClick = { onCategorySelected("Geography") },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
 
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                CategoryTile(
-                    color = CatScienceMath,
-                    iconUrl = FigmaAssets.IconMath,
-                    onClick = { onCategorySelected("Science & Math") },
-                    modifier = Modifier.weight(1f)
-                )
-                CategoryTile(
-                    color = CatPopCulture,
-                    iconUrl = FigmaAssets.IconMusic,
-                    onClick = { onCategorySelected("Pop Culture") },
-                    modifier = Modifier.weight(1f)
-                )
-            }
+                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                        CategoryTile(
+                            color = CatScienceMath,
+                            icon = Icons.Filled.Calculate,
+                            label = "Science & Math",
+                            onClick = { onCategorySelected("Science & Math") },
+                            modifier = Modifier.weight(1f)
+                        )
+                        CategoryTile(
+                            color = CatPopCulture,
+                            icon = Icons.Filled.Movie,
+                            label = "Pop Culture",
+                            onClick = { onCategorySelected("Pop Culture") },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
 
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                CategoryTile(
-                    color = CatSportsGames,
-                    iconUrl = FigmaAssets.IconSports,
-                    onClick = { onCategorySelected("Sports & Games") },
-                    modifier = Modifier.weight(1f)
-                )
-                CategoryTile(
-                    color = CatLiterature,
-                    iconUrl = FigmaAssets.IconLiterature,
-                    onClick = { onCategorySelected("Literature") },
-                    modifier = Modifier.weight(1f)
-                )
-            }
+                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                        CategoryTile(
+                            color = CatSportsGames,
+                            icon = Icons.Filled.SportsFootball,
+                            label = "Sports & Games",
+                            onClick = { onCategorySelected("Sports & Games") },
+                            modifier = Modifier.weight(1f)
+                        )
+                        CategoryTile(
+                            color = CatLiterature,
+                            icon = Icons.Filled.AutoStories,
+                            label = "Literature",
+                            onClick = { onCategorySelected("Literature") },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
 
-            WideTile(label = "Mixed Knowledge", color = HeaderBrown) {
-                onCategorySelected("Mixed Knowledge")
+                    WideTile(label = "Mixed Knowledge", color = HeaderBrown) {
+                        onCategorySelected("Mixed Knowledge")
+                    }
+                }
             }
         }
 
@@ -142,7 +193,8 @@ fun ChooseGameCategoryScreen(
 @Composable
 private fun CategoryTile(
     color: Color,
-    iconUrl: String,
+    icon: ImageVector,
+    label: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -154,11 +206,24 @@ private fun CategoryTile(
             .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
-        AsyncImage(
-            model = iconUrl,
-            contentDescription = null,
-            modifier = Modifier.size(100.dp)
-        )
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = label,
+                tint = Color.White,
+                modifier = Modifier.size(52.dp)
+            )
+
+            Text(
+                text = label,
+                color = Color.White,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
     }
 }
 
@@ -177,11 +242,16 @@ private fun WideTile(
             .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = label,
-            color = Color.White,
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold
-        )
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Text(
+                text = label,
+                color = Color.White,
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
     }
 }

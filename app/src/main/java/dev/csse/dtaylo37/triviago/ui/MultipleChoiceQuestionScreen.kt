@@ -1,23 +1,28 @@
 package dev.csse.dtaylo37.triviago.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,7 +30,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.csse.dtaylo37.triviago.R
 import dev.csse.dtaylo37.triviago.ui.components.GameScreenFrame
-import dev.csse.dtaylo37.triviago.ui.data.TriviaRepository
 import dev.csse.dtaylo37.triviago.ui.theme.TriviaGreen
 import dev.csse.dtaylo37.triviago.ui.theme.TriviaPurple
 import dev.csse.dtaylo37.triviago.ui.theme.TriviaRed
@@ -45,9 +49,10 @@ fun MultipleChoiceQuestionScreen(
         categoryName = viewModel.selectedCategory?.categoryName ?: "Category Name",
         questionText = currentQuestion?.text ?: "Loading Questions...",
         answerOptions = currentQuestion?.answerOptions ?: emptyList(),
-        selectedOption = {
-            viewModel.selectOption(it)
-        },
+        selectedIndex = viewModel.selectedIndex,
+        onOptionSelected = { viewModel.selectOption(it) },
+        onSubmit = onSubmit,
+        onQuitHome = onQuitHome,
         modifier = modifier
     )
 }
@@ -57,9 +62,14 @@ fun MCQuestionScreen(
     categoryName: String,
     questionText: String,
     answerOptions: List<String>,
-    selectedOption: (Int) -> Unit,
+    selectedIndex: Int?,
+    onOptionSelected: (Int) -> Unit,
+    onSubmit: () -> Unit,
+    onQuitHome: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val headerImage = remember(categoryName) { imageForCategory(categoryName) }
+
     GameScreenFrame(
         headerContent = {
             Text(
@@ -75,17 +85,8 @@ fun MCQuestionScreen(
         ) {
             Spacer(Modifier.height(4.dp))
 
-            val headerImages = listOf(
-                R.drawable.history_graphic,
-                R.drawable.geography_graphic,
-                R.drawable.sciencemath_graphic,
-                R.drawable.popculture_graphic,
-                R.drawable.sportsgames_graphic,
-                R.drawable.literature_graphic,
-                R.drawable.mixedknowledge_graphic
-            )
             Image(
-                painter = painterResource(id = headerImages.random()),
+                painter = painterResource(id = headerImage),
                 contentDescription = "Subject Graphic",
                 modifier = Modifier
                     .fillMaxWidth()
@@ -93,24 +94,25 @@ fun MCQuestionScreen(
                     .clip(RoundedCornerShape(20.dp))
             )
 
-            // Timer Bar
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(20.dp)
                     .clip(RoundedCornerShape(20.dp))
                     .background(
-                        brush = Brush.horizontalGradient(listOf(TriviaRed, TriviaYellow, TriviaGreen))
+                        brush = Brush.horizontalGradient(
+                            listOf(TriviaRed, TriviaYellow, TriviaGreen)
+                        )
                     )
             )
+
             Text(
-                text = "Time Left: ",
+                text = "Time Left:",
                 color = Color.Black,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Medium
             )
 
-            // Question
             Text(
                 text = questionText,
                 color = Color.Black,
@@ -118,7 +120,6 @@ fun MCQuestionScreen(
                 fontWeight = FontWeight.Bold
             )
 
-            // Answer Choices
             Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
                 val colors = listOf(TriviaRed, TriviaPurple, TriviaTeal, TriviaGreen)
 
@@ -126,8 +127,31 @@ fun MCQuestionScreen(
                     AnswerTile(
                         color = colors.getOrElse(index) { Color.Gray },
                         answerText = option,
-                        onClick = { selectedOption(index) }
+                        isSelected = selectedIndex == index,
+                        onClick = { onOptionSelected(index) }
                     )
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                OutlinedButton(
+                    onClick = onQuitHome,
+                    modifier = Modifier.weight(1f),
+                    border = BorderStroke(2.dp, TriviaPurple)
+                ) {
+                    Text("Quit")
+                }
+
+                Button(
+                    onClick = onSubmit,
+                    enabled = selectedIndex != null,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = TriviaPurple)
+                ) {
+                    Text("Submit")
                 }
             }
         }
@@ -138,6 +162,7 @@ fun MCQuestionScreen(
 private fun AnswerTile(
     color: Color,
     answerText: String,
+    isSelected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -146,7 +171,7 @@ private fun AnswerTile(
             .fillMaxWidth()
             .height(60.dp)
             .clip(RoundedCornerShape(20.dp))
-            .background(color)
+            .background(if (isSelected) color.copy(alpha = 0.75f) else color)
             .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
@@ -154,8 +179,21 @@ private fun AnswerTile(
             text = answerText,
             color = Color.White,
             fontSize = 22.sp,
-            fontWeight = FontWeight.Medium
+            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
         )
+    }
+}
+
+private fun imageForCategory(categoryName: String): Int {
+    return when (categoryName) {
+        "History" -> R.drawable.history_graphic
+        "Geography" -> R.drawable.geography_graphic
+        "Science & Math" -> R.drawable.sciencemath_graphic
+        "Pop Culture" -> R.drawable.popculture_graphic
+        "Sports & Games" -> R.drawable.sportsgames_graphic
+        "Literature" -> R.drawable.literature_graphic
+        "Mixed Knowledge" -> R.drawable.mixedknowledge_graphic
+        else -> R.drawable.history_graphic
     }
 }
 
@@ -165,7 +203,15 @@ fun MultipleChoiceQuestionScreenPreview() {
     MCQuestionScreen(
         categoryName = "History",
         questionText = "Who was the first president of the United States?",
-        answerOptions = listOf("George Washington", "Thomas Jefferson", "Abraham Lincoln", "Benjamin Franklin"),
-        selectedOption = {}
+        answerOptions = listOf(
+            "George Washington",
+            "Thomas Jefferson",
+            "Abraham Lincoln",
+            "Benjamin Franklin"
+        ),
+        selectedIndex = 0,
+        onOptionSelected = {},
+        onSubmit = {},
+        onQuitHome = {}
     )
 }

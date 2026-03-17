@@ -1,5 +1,6 @@
 package dev.csse.dtaylo37.triviago.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,8 +13,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,7 +34,6 @@ import dev.csse.dtaylo37.triviago.ui.components.GameScreenFrame
 import dev.csse.dtaylo37.triviago.ui.theme.TriviaGreen
 import dev.csse.dtaylo37.triviago.ui.theme.TriviaPurple
 import dev.csse.dtaylo37.triviago.ui.theme.TriviaRed
-import dev.csse.dtaylo37.triviago.ui.theme.TriviaTeal
 import dev.csse.dtaylo37.triviago.ui.theme.TriviaYellow
 
 @Composable
@@ -44,10 +48,11 @@ fun TrueOrFalseQuestionScreen(
     TFQuestionScreen(
         categoryName = viewModel.selectedCategory?.categoryName ?: "Category Name",
         questionText = currentQuestion?.text ?: "Loading Questions...",
-        answerOptions = currentQuestion?.answerOptions ?: emptyList(),
-        selectedOption = {
-            viewModel.selectOption(it)
-        },
+        answerOptions = currentQuestion?.answerOptions ?: listOf("True", "False"),
+        selectedIndex = viewModel.selectedIndex,
+        onOptionSelected = { viewModel.selectOption(it) },
+        onSubmit = onSubmit,
+        onQuitHome = onQuitHome,
         modifier = modifier
     )
 }
@@ -57,9 +62,14 @@ fun TFQuestionScreen(
     categoryName: String,
     questionText: String,
     answerOptions: List<String>,
-    selectedOption: (Int) -> Unit,
+    selectedIndex: Int?,
+    onOptionSelected: (Int) -> Unit,
+    onSubmit: () -> Unit,
+    onQuitHome: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val headerImage = remember(categoryName) { tfImageForCategory(categoryName) }
+
     GameScreenFrame(
         headerContent = {
             Text(
@@ -73,17 +83,8 @@ fun TFQuestionScreen(
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Spacer(Modifier.height(4.dp))
 
-            val headerImages = listOf(
-                R.drawable.history_graphic,
-                R.drawable.geography_graphic,
-                R.drawable.sciencemath_graphic,
-                R.drawable.popculture_graphic,
-                R.drawable.sportsgames_graphic,
-                R.drawable.literature_graphic,
-                R.drawable.mixedknowledge_graphic
-            )
             Image(
-                painter = painterResource(id = headerImages.random()),
+                painter = painterResource(id = headerImage),
                 contentDescription = "Subject Graphic",
                 modifier = Modifier
                     .fillMaxWidth()
@@ -91,7 +92,6 @@ fun TFQuestionScreen(
                     .clip(RoundedCornerShape(20.dp))
             )
 
-            // Timer Bar
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -103,14 +103,14 @@ fun TFQuestionScreen(
                         )
                     )
             )
+
             Text(
-                text = "Time Left: ",
+                text = "Time Left:",
                 color = Color.Black,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Medium
             )
 
-            // Question
             Text(
                 text = questionText,
                 color = Color.Black,
@@ -118,16 +118,38 @@ fun TFQuestionScreen(
                 fontWeight = FontWeight.Bold
             )
 
-            // Answer Choices
             Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
                 val colors = listOf(TriviaGreen, TriviaRed)
 
                 answerOptions.forEachIndexed { index, option ->
-                    AnswerTile(
+                    TFAnswerTile(
                         color = colors.getOrElse(index) { Color.Gray },
                         answerText = option,
-                        onClick = { selectedOption(index) }
+                        isSelected = selectedIndex == index,
+                        onClick = { onOptionSelected(index) }
                     )
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                OutlinedButton(
+                    onClick = onQuitHome,
+                    modifier = Modifier.weight(1f),
+                    border = BorderStroke(2.dp, TriviaPurple)
+                ) {
+                    Text("Quit")
+                }
+
+                Button(
+                    onClick = onSubmit,
+                    enabled = selectedIndex != null,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = TriviaPurple)
+                ) {
+                    Text("Submit")
                 }
             }
         }
@@ -135,9 +157,10 @@ fun TFQuestionScreen(
 }
 
 @Composable
-private fun AnswerTile(
+private fun TFAnswerTile(
     color: Color,
     answerText: String,
+    isSelected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -146,7 +169,7 @@ private fun AnswerTile(
             .height(330.dp)
             .width(165.dp)
             .clip(RoundedCornerShape(20.dp))
-            .background(color)
+            .background(if (isSelected) color.copy(alpha = 0.75f) else color)
             .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
@@ -154,8 +177,21 @@ private fun AnswerTile(
             text = answerText,
             color = Color.White,
             fontSize = 32.sp,
-            fontWeight = FontWeight.Medium
+            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
         )
+    }
+}
+
+private fun tfImageForCategory(categoryName: String): Int {
+    return when (categoryName) {
+        "History" -> R.drawable.history_graphic
+        "Geography" -> R.drawable.geography_graphic
+        "Science & Math" -> R.drawable.sciencemath_graphic
+        "Pop Culture" -> R.drawable.popculture_graphic
+        "Sports & Games" -> R.drawable.sportsgames_graphic
+        "Literature" -> R.drawable.literature_graphic
+        "Mixed Knowledge" -> R.drawable.mixedknowledge_graphic
+        else -> R.drawable.history_graphic
     }
 }
 
@@ -164,8 +200,11 @@ private fun AnswerTile(
 fun TrueOrFalseQuestionScreenPreview() {
     TFQuestionScreen(
         categoryName = "Geography",
-        questionText = "Earth is flat",
+        questionText = "Earth is flat.",
         answerOptions = listOf("True", "False"),
-        selectedOption = {}
+        selectedIndex = 1,
+        onOptionSelected = {},
+        onSubmit = {},
+        onQuitHome = {}
     )
 }

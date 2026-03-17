@@ -1,27 +1,29 @@
 package dev.csse.dtaylo37.triviago.ui
 
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.padding
-import androidx.compose.ui.Modifier
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.navigation.compose.NavHost
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import androidx.navigation.NavType
+import dev.csse.dtaylo37.triviago.ui.data.TriviaRepository
 
 @Composable
 fun TriviaGoApp(
-    viewModel: TriviaGoViewModel = viewModel()
+    triviaRepository: TriviaRepository
 ) {
     val nav = rememberNavController()
+    val viewModel: TriviaGoViewModel = viewModel(
+        factory = TriviaGoViewModelFactory(triviaRepository)
+    )
 
     Scaffold(
         topBar = {}
     ) { innerPadding ->
-
         NavHost(
             navController = nav,
             startDestination = Route.Opening.path,

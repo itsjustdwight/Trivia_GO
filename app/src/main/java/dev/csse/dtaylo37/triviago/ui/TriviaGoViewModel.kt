@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import dev.csse.dtaylo37.triviago.ui.data.GameCategory
 import dev.csse.dtaylo37.triviago.ui.data.Question
@@ -23,19 +24,20 @@ data class GameCategoryScreenUiState(
     val selectedGameCategory: Set<GameCategory> = emptySet()
 )
 
-
 class TriviaGoViewModel(
     private val triviaRepo: TriviaRepository
 ) : ViewModel() {
+
     val uiState: StateFlow<GameCategoryScreenUiState> =
-        triviaRepo.getGameCategories().map {
-            GameCategoryScreenUiState(
-                gameCategories = it
-            )
-        }
+        triviaRepo.getGameCategories()
+            .map {
+                GameCategoryScreenUiState(
+                    gameCategories = it
+                )
+            }
             .stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5),
+                started = SharingStarted.WhileSubscribed(5_000),
                 initialValue = GameCategoryScreenUiState()
             )
 
@@ -56,16 +58,21 @@ class TriviaGoViewModel(
 
     fun selectCategory(categoryName: String) {
         viewModelScope.launch {
-            val category = triviaRepo.getGameCategories().map { list ->
-                list.find { it.categoryName == categoryName }
-            }.firstOrNull()
-            
+            val category = triviaRepo.getGameCategories()
+                .map { list -> list.find { it.categoryName == categoryName } }
+                .firstOrNull()
+
             selectedCategory = category
+
             if (category != null) {
-                triviaRepo.getQuestions(category.id).collect {
-                    questions = it
-                }
+                questions = triviaRepo.getQuestions(category.id).firstOrNull().orEmpty()
+            } else {
+                questions = emptyList()
             }
+
+            questionIndex = 0
+            selectedIndex = null
+            lastCorrect = null
         }
     }
 
@@ -81,17 +88,21 @@ class TriviaGoViewModel(
 
     fun submitAnswer() {
         val q = questions.getOrNull(questionIndex) ?: return
-        lastCorrect = (selectedIndex != null && q.answerOptions.getOrNull(selectedIndex!!) == q.correctAnswer)
+        val chosenAnswer = selectedIndex?.let { q.answerOptions.getOrNull(it) }
+
+        lastCorrect = chosenAnswer == q.correctAnswer
     }
 
     fun nextQuestion(): Boolean {
         val next = questionIndex + 1
         val done = next >= questions.size
+
         if (!done) {
             questionIndex = next
             selectedIndex = null
             lastCorrect = null
         }
+
         return done
     }
 
@@ -113,5 +124,16 @@ class TriviaGoViewModel(
             QuestionType.TF -> Route.TrueFalse.path
         }
     }
+}
 
+class TriviaGoViewModelFactory(
+    private val triviaRepo: TriviaRepository
+) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(TriviaGoViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return TriviaGoViewModel(triviaRepo) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
 }
