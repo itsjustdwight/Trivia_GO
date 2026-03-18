@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.csse.dtaylo37.triviago.R
 import dev.csse.dtaylo37.triviago.ui.components.GameScreenFrame
+import dev.csse.dtaylo37.triviago.ui.components.ResultBanner
 import dev.csse.dtaylo37.triviago.ui.theme.TriviaGreen
 import dev.csse.dtaylo37.triviago.ui.theme.TriviaPurple
 import dev.csse.dtaylo37.triviago.ui.theme.TriviaRed
@@ -50,7 +52,8 @@ fun TrueOrFalseQuestionScreen(
         questionText = currentQuestion?.text ?: "Loading Questions...",
         answerOptions = currentQuestion?.answerOptions ?: listOf("True", "False"),
         selectedIndex = viewModel.selectedIndex,
-        onOptionSelected = { viewModel.selectOption(it) },
+        showResult = viewModel.lastCorrect,
+        onOptionSelected = { if (viewModel.lastCorrect == null) viewModel.selectOption(it) },
         onSubmit = onSubmit,
         onQuitHome = onQuitHome,
         modifier = modifier
@@ -63,6 +66,7 @@ fun TFQuestionScreen(
     questionText: String,
     answerOptions: List<String>,
     selectedIndex: Int?,
+    showResult: Boolean?,
     onOptionSelected: (Int) -> Unit,
     onSubmit: () -> Unit,
     onQuitHome: () -> Unit,
@@ -83,14 +87,20 @@ fun TFQuestionScreen(
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Spacer(Modifier.height(4.dp))
 
-            Image(
-                painter = painterResource(id = headerImage),
-                contentDescription = "Subject Graphic",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(225.dp)
-                    .clip(RoundedCornerShape(20.dp))
-            )
+            Box(contentAlignment = Alignment.Center) {
+                Image(
+                    painter = painterResource(id = headerImage),
+                    contentDescription = "Subject Graphic",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(225.dp)
+                        .clip(RoundedCornerShape(20.dp)),
+                    contentScale = ContentScale.Crop
+                )
+                if (showResult != null) {
+                    ResultBanner(isCorrect = showResult)
+                }
+            }
 
             Box(
                 modifier = Modifier
@@ -149,7 +159,7 @@ fun TFQuestionScreen(
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(containerColor = TriviaPurple)
                 ) {
-                    Text("Submit")
+                    Text(if (showResult == null) "Submit" else "Continue")
                 }
             }
         }
@@ -203,6 +213,7 @@ fun TrueOrFalseQuestionScreenPreview() {
         questionText = "Earth is flat.",
         answerOptions = listOf("True", "False"),
         selectedIndex = 1,
+        showResult = null,
         onOptionSelected = {},
         onSubmit = {},
         onQuitHome = {}

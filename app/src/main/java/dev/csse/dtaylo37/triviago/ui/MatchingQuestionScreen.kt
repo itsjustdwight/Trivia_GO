@@ -1,60 +1,86 @@
 package dev.csse.dtaylo37.triviago.ui
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import dev.csse.dtaylo37.triviago.R
 import dev.csse.dtaylo37.triviago.ui.components.GameScreenFrame
-import dev.csse.dtaylo37.triviago.ui.components.PrimaryButton
-import dev.csse.dtaylo37.triviago.ui.theme.TriviaGreen
-import dev.csse.dtaylo37.triviago.ui.theme.TriviaPurple
-import dev.csse.dtaylo37.triviago.ui.theme.TriviaRed
-import dev.csse.dtaylo37.triviago.ui.theme.TriviaTeal
-import dev.csse.dtaylo37.triviago.ui.theme.TriviaYellow
+import dev.csse.dtaylo37.triviago.ui.components.ResultBanner
+import dev.csse.dtaylo37.triviago.ui.theme.*
+import kotlin.math.roundToInt
 
 @Composable
 fun MatchingQuestionScreen(
     viewModel: TriviaGoViewModel,
+    onSubmit: () -> Unit,
     onQuitHome: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val currentQuestion = viewModel.questions.getOrNull(viewModel.questionIndex)
 
+    val leftItems = remember(currentQuestion) {
+        currentQuestion?.answerOptions?.filterIndexed { i, _ -> i % 2 == 0 } ?: emptyList()
+    }
+    val correctRightOrder = remember(currentQuestion) {
+        currentQuestion?.correctAnswer?.split(",") ?: emptyList()
+    }
+
+    val shuffledRight = remember(correctRightOrder) { correctRightOrder.shuffled() }
+    val currentRightItems = remember(shuffledRight) { mutableStateListOf<String>().apply { addAll(shuffledRight) } }
+
+    val showResult = viewModel.lastCorrect
+
     MATCHQuestionScreen(
-        categoryName = viewModel.selectedCategory?.categoryName ?: "Category Name",
-        questionText = currentQuestion?.text ?: "Loading Questions...",
-        answerOptions = currentQuestion?.answerOptions ?: emptyList(),
-        selectedOption = {
-            viewModel.selectOption(it)
+        categoryName = viewModel.selectedCategory?.categoryName ?: "Science & Math",
+        questionText = currentQuestion?.text ?: "Match the elements with their names:",
+        leftItems = leftItems,
+        rightItems = currentRightItems,
+        showResult = showResult,
+        onReorder = { from, to ->
+            if (from != to && showResult == null) {
+                val item = currentRightItems.removeAt(from)
+                currentRightItems.add(to, item)
+            }
         },
-        modifier = modifier,
         onSubmit = {
-            viewModel.submitAnswer()
-//            onQuitHome()
-        }
+            if (showResult == null) {
+                val isCorrect = currentRightItems.toList() == correctRightOrder
+                viewModel.submitManualResult(isCorrect)
+            } else {
+                onSubmit()
+            }
+        },
+        onQuitHome = onQuitHome,
+        modifier = modifier
     )
 }
 
@@ -62,60 +88,66 @@ fun MatchingQuestionScreen(
 fun MATCHQuestionScreen(
     categoryName: String,
     questionText: String,
-    answerOptions: List<String>,
-    selectedOption: (Int) -> Unit,
+    leftItems: List<String>,
+    rightItems: List<String>,
+    showResult: Boolean?,
+    onReorder: (Int, Int) -> Unit,
     onSubmit: () -> Unit,
+    onQuitHome: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val headerImage = remember(categoryName) { ImageForCategory(categoryName) }
+
     GameScreenFrame(
+        modifier = modifier,
         headerContent = {
+            Spacer(Modifier.width(8.dp))
             Text(
                 text = categoryName,
                 color = Color.White,
                 fontSize = 36.sp,
                 fontWeight = FontWeight.Bold
             )
+            Spacer(Modifier.width(8.dp))
         }
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Spacer(Modifier.height(1.dp))
 
-            val headerImages = listOf(
-                R.drawable.history_graphic,
-                R.drawable.geography_graphic,
-                R.drawable.sciencemath_graphic,
-                R.drawable.popculture_graphic,
-                R.drawable.sportsgames_graphic,
-                R.drawable.literature_graphic,
-                R.drawable.mixedknowledge_graphic
-            )
-            Image(
-                painter = painterResource(id = headerImages.random()),
-                contentDescription = "Subject Graphic",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .clip(RoundedCornerShape(20.dp))
-            )
+            Box(contentAlignment = Alignment.Center) {
+                Image(
+                    painter = painterResource(id = headerImage),
+                    contentDescription = "Subject Graphic",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(225.dp)
+                        .clip(RoundedCornerShape(20.dp)),
+                    contentScale = ContentScale.Crop
+                )
+                if (showResult != null) {
+                    ResultBanner(isCorrect = showResult)
+                }
+            }
 
-            // Timer Bar
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(20.dp)
                     .clip(RoundedCornerShape(20.dp))
                     .background(
-                        brush = Brush.horizontalGradient(listOf(TriviaRed, TriviaYellow, TriviaGreen))
+                        brush = Brush.horizontalGradient(
+                            listOf(TriviaRed, TriviaYellow, TriviaGreen)
+                        )
                     )
             )
+
             Text(
-                text = "Time Left: ",
+                text = "Time Left:",
                 color = Color.Black,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Medium
             )
 
-            // Question
             Text(
                 text = questionText,
                 color = Color.Black,
@@ -123,45 +155,119 @@ fun MATCHQuestionScreen(
                 fontWeight = FontWeight.Bold
             )
 
-            // Answer Choices
             val colors = listOf(TriviaRed, TriviaPurple, TriviaTeal, TriviaGreen, TriviaYellow)
-            val pairs = listOf(
-                "Part A" to "Part B",
-                "Part A" to "Part B",
-                "Part A" to "Part B",
-                "Part A" to "Part B",
-                "Part A" to "Part B"
-            )
-
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                pairs.forEachIndexed { index, pair ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
+            
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(0.5f).padding(end = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    leftItems.forEachIndexed { index, item ->
                         AnswerTile(
                             color = colors[index % colors.size],
-                            answerText = pair.first,
+                            answerText = item,
                             isLeft = true,
-                            onClick = {},
-                            modifier = Modifier.weight(1f)
-                        )
-                        AnswerTile(
-                            color = colors[index % colors.size],
-                            answerText = pair.first,
-                            isLeft = true,
-                            onClick = {},
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.fillMaxWidth()
                         )
                     }
                 }
+
+                MatchReorderableColumn(
+                    items = rightItems,
+                    onReorder = onReorder,
+                    colors = colors,
+                    enabled = showResult == null,
+                    modifier = Modifier.align(Alignment.TopEnd).fillMaxWidth(0.5f).padding(start = 4.dp)
+                )
             }
 
-            // Submit Button
-            PrimaryButton(
-                text = "Submit",
-                onClick = onSubmit
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                OutlinedButton(
+                    onClick = onQuitHome,
+                    modifier = Modifier.weight(1f),
+                    border = BorderStroke(2.dp, TriviaPurple)
+                ) {
+                    Text("Quit")
+                }
+
+                Button(
+                    onClick = onSubmit,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = TriviaPurple)
+                ) {
+                    Text(if (showResult == null) "Submit" else "Continue")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun MatchReorderableColumn(
+    items: List<String>,
+    onReorder: (Int, Int) -> Unit,
+    colors: List<Color>,
+    enabled: Boolean = true,
+    modifier: Modifier = Modifier
+) {
+    val density = LocalDensity.current
+    val itemHeightPx = with(density) { 56.dp.toPx() }
+    val spacingPx = with(density) { 12.dp.toPx() }
+    val totalStep = itemHeightPx + spacingPx
+
+    // Keep track of which index is being dragged and its current offset
+    var draggingIndex by remember { mutableStateOf<Int?>(null) }
+    var dragOffsetY by remember { mutableStateOf(0f) }
+
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        items.forEachIndexed { index, item ->
+            val isDragging = draggingIndex == index
+            
+            val verticalOffset = if (isDragging) dragOffsetY else 0f
+
+            Box(
+                modifier = Modifier
+                    .zIndex(if (isDragging) 1f else 0f)
+                    .offset { IntOffset(0, verticalOffset.roundToInt()) }
+                    .then(if (enabled) {
+                        Modifier.pointerInput(index) {
+                            detectDragGestures(
+                                onDragStart = { 
+                                    draggingIndex = index
+                                    dragOffsetY = 0f
+                                },
+                                onDragEnd = {
+                                    val targetIndex = (index + (dragOffsetY / totalStep).roundToInt())
+                                        .coerceIn(0, items.size - 1)
+                                    onReorder(index, targetIndex)
+                                    draggingIndex = null
+                                    dragOffsetY = 0f
+                                },
+                                onDragCancel = {
+                                    draggingIndex = null
+                                    dragOffsetY = 0f
+                                },
+                                onDrag = { change, dragAmount ->
+                                    dragOffsetY += dragAmount.y
+                                    change.consume()
+                                }
+                            )
+                        }
+                    } else Modifier)
+            ) {
+                AnswerTile(
+                    color = colors[index % colors.size],
+                    answerText = item,
+                    isLeft = false,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
     }
 }
@@ -171,31 +277,47 @@ private fun AnswerTile(
     color: Color,
     answerText: String,
     isLeft: Boolean,
-    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = modifier
-            .height(40.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .background(color)
-            .clickable { onClick() },
+        modifier = modifier.height(56.dp),
         contentAlignment = Alignment.Center
     ) {
         Box(
             modifier = Modifier
-                .size(20.dp)
+                .fillMaxSize()
+                .padding(horizontal = 6.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(color),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = answerText,
+                color = Color.White,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        Box(
+            modifier = Modifier
+                .size(24.dp)
                 .align(if (isLeft) Alignment.CenterEnd else Alignment.CenterStart)
-                .offset(x = if (isLeft) 12.dp else (-12).dp)
-                .clip(CircleShape)
-                .background(color)
+                .offset(x = if (isLeft) 6.dp else (-6).dp)
+                .background(color, CircleShape)
         )
-        Text(
-            text = answerText,
-            color = Color.White,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Medium
-        )
+    }
+}
+
+private fun ImageForCategory(categoryName: String): Int {
+    return when (categoryName) {
+        "History" -> R.drawable.history_graphic
+        "Geography" -> R.drawable.geography_graphic
+        "Science & Math" -> R.drawable.sciencemath_graphic
+        "Pop Culture" -> R.drawable.popculture_graphic
+        "Sports & Games" -> R.drawable.sportsgames_graphic
+        "Literature" -> R.drawable.literature_graphic
+        "Mixed Knowledge" -> R.drawable.mixedknowledge_graphic
+        else -> R.drawable.history_graphic
     }
 }
 
@@ -204,9 +326,12 @@ private fun AnswerTile(
 fun MatchingQuestionScreenPreview() {
     MATCHQuestionScreen(
         categoryName = "Science & Math",
-        questionText = "Match the following pairs of elements on the periodic table:",
-        answerOptions = listOf("Fe", "Iron"),
-        selectedOption = {},
-        onSubmit = {}
+        questionText = "Match the following elements:",
+        leftItems = listOf("Fe", "Au", "Ag", "Pb", "Cu"),
+        rightItems = listOf("Iron", "Gold", "Silver", "Lead", "Copper"),
+        showResult = null,
+        onReorder = { _, _ -> },
+        onSubmit = {},
+        onQuitHome = {}
     )
 }

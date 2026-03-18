@@ -12,11 +12,11 @@ interface QuestionDao {
     fun getQuestions(gameCategoryId: Long): Flow<List<Question>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun addQuestion(question: Question): Long
+    suspend fun addQuestion(question: Question): Long
 
     @Update
-    fun updateQuestion(question: Question)
+    suspend fun updateQuestion(question: Question): Int
 
     @Delete
-    fun deleteQuestion(question: Question)
+    suspend fun deleteQuestion(question: Question): Int
 }

@@ -30,12 +30,6 @@ fun TriviaGoAppBar(title: String) {
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = Color.Transparent
         )
-
-        // TODO: In the profile settings screen, this TopAppBar will
-    //      contain "Profile Settings" t
-
-        // TODO: In the loading and question screens, this TopAppBar will
-    //      contain the game category name and icon
     )
 }
 

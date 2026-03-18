@@ -75,8 +75,11 @@ fun TriviaGoApp(
                 MultipleChoiceQuestionScreen(
                     viewModel = viewModel,
                     onSubmit = {
-                        viewModel.submitAnswer()
-                        nav.navigate(Route.Transition.path)
+                        if (viewModel.lastCorrect != null) {
+                            nav.navigate(Route.Transition.path)
+                        } else {
+                            viewModel.submitAnswer()
+                        }
                     },
                     onQuitHome = {
                         nav.navigate(Route.Home.path) {
@@ -88,30 +91,16 @@ fun TriviaGoApp(
                 )
             }
 
-//            composable(Route.FillBlank.path) {
-//                FillInTheBlankQuestionScreen(
-//                    viewModel = viewModel,
-//                    onSubmit = {
-//                        viewModel.submitAnswer()
-//                        nav.navigate(Route.Transition.path)
-//                    },
-//                    onQuitHome = {
-//                        nav.navigate(Route.Home.path) {
-//                            popUpTo(Route.Home.path) {
-//                                inclusive = true
-//                            }
-//                        }
-//                    }
-//                )
-//            }
-
             composable(Route.Matching.path) {
                 MatchingQuestionScreen(
                     viewModel = viewModel,
-//                    onSubmit = {
-//                        viewModel.submitAnswer()
-//                        nav.navigate(Route.Transition.path)
-//                    },
+                    onSubmit = {
+                        if (viewModel.lastCorrect != null) {
+                            nav.navigate(Route.Transition.path)
+                        } else {
+                            // Logic handled in screen (submitManualResult)
+                        }
+                    },
                     onQuitHome = {
                         nav.navigate(Route.Home.path) {
                             popUpTo(Route.Home.path) {
@@ -126,8 +115,11 @@ fun TriviaGoApp(
                 RearrangeOrderQuestionScreen(
                     viewModel = viewModel,
                     onSubmit = {
-                        viewModel.submitAnswer()
-                        nav.navigate(Route.Transition.path)
+                        if (viewModel.lastCorrect != null) {
+                            nav.navigate(Route.Transition.path)
+                        } else {
+                            // Logic handled in screen (submitManualResult)
+                        }
                     },
                     onQuitHome = {
                         nav.navigate(Route.Home.path) {
@@ -143,8 +135,11 @@ fun TriviaGoApp(
                 TrueOrFalseQuestionScreen(
                     viewModel = viewModel,
                     onSubmit = {
-                        viewModel.submitAnswer()
-                        nav.navigate(Route.Transition.path)
+                        if (viewModel.lastCorrect != null) {
+                            nav.navigate(Route.Transition.path)
+                        } else {
+                            viewModel.submitAnswer()
+                        }
                     },
                     onQuitHome = {
                         nav.navigate(Route.Home.path) {

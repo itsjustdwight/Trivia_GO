@@ -55,17 +55,20 @@ class TriviaGoViewModel(
 
     var lastCorrect by mutableStateOf<Boolean?>(null)
         private set
+        
+    var score by mutableIntStateOf(0)
+        private set
 
     fun selectCategory(categoryName: String) {
         viewModelScope.launch {
-            val category = triviaRepo.getGameCategories()
-                .map { list -> list.find { it.categoryName == categoryName } }
-                .firstOrNull()
+            val categoryList = triviaRepo.getGameCategories().map { it }.firstOrNull() ?: emptyList()
+            val category = categoryList.find { it.categoryName == categoryName }
 
             selectedCategory = category
 
             if (category != null) {
-                questions = triviaRepo.getQuestions(category.id).firstOrNull().orEmpty()
+                // Get exactly 4 questions or as many as available
+                questions = triviaRepo.getQuestions(category.id).map { it.take(4) }.firstOrNull().orEmpty()
             } else {
                 questions = emptyList()
             }
@@ -76,10 +79,15 @@ class TriviaGoViewModel(
         }
     }
 
-    fun startGame() {
+    private fun resetGameState() {
         questionIndex = 0
         selectedIndex = null
         lastCorrect = null
+        score = 0
+    }
+
+    fun startGame() {
+        resetGameState()
     }
 
     fun selectOption(idx: Int) {
@@ -90,7 +98,18 @@ class TriviaGoViewModel(
         val q = questions.getOrNull(questionIndex) ?: return
         val chosenAnswer = selectedIndex?.let { q.answerOptions.getOrNull(it) }
 
-        lastCorrect = chosenAnswer == q.correctAnswer
+        val correct = chosenAnswer == q.correctAnswer
+        lastCorrect = correct
+        if (correct) {
+            score++
+        }
+    }
+    
+    fun submitManualResult(isCorrect: Boolean) {
+        lastCorrect = isCorrect
+        if (isCorrect) {
+            score++
+        }
     }
 
     fun nextQuestion(): Boolean {

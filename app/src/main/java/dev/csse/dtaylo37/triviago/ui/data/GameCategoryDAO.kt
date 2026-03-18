@@ -12,12 +12,11 @@ interface GameCategoryDao {
     fun getGameCategories(): Flow<List<GameCategory>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun addGameCategory(gameCategory: GameCategory): Long
+    suspend fun addGameCategory(gameCategory: GameCategory): Long
 
     @Update
-    fun updateGameCategory(gameCategory: GameCategory)
+    suspend fun updateGameCategory(gameCategory: GameCategory): Int
 
     @Delete
-    fun deleteGameCategory(gameCategory: GameCategory)
+    suspend fun deleteGameCategory(gameCategory: GameCategory): Int
 }
-

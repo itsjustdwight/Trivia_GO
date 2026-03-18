@@ -1,45 +1,39 @@
 package dev.csse.dtaylo37.triviago.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import dev.csse.dtaylo37.triviago.R
 import dev.csse.dtaylo37.triviago.ui.components.GameScreenFrame
-import dev.csse.dtaylo37.triviago.ui.components.PrimaryButton
-import dev.csse.dtaylo37.triviago.ui.theme.BackgroundPurple
-import dev.csse.dtaylo37.triviago.ui.theme.TriviaBlue
-import dev.csse.dtaylo37.triviago.ui.theme.TriviaGreen
-import dev.csse.dtaylo37.triviago.ui.theme.TriviaPurple
-import dev.csse.dtaylo37.triviago.ui.theme.TriviaRed
-import dev.csse.dtaylo37.triviago.ui.theme.TriviaTeal
-import dev.csse.dtaylo37.triviago.ui.theme.TriviaYellow
+import dev.csse.dtaylo37.triviago.ui.components.ResultBanner
+import dev.csse.dtaylo37.triviago.ui.theme.*
+import kotlin.math.roundToInt
 
 @Composable
 fun RearrangeOrderQuestionScreen(
@@ -49,19 +43,38 @@ fun RearrangeOrderQuestionScreen(
     modifier: Modifier = Modifier
 ) {
     val currentQuestion = viewModel.questions.getOrNull(viewModel.questionIndex)
+    
+    // We start with the options shuffled
+    val initialOrder = remember(currentQuestion) {
+        currentQuestion?.answerOptions?.shuffled() ?: emptyList()
+    }
+    val currentOrder = remember(initialOrder) { 
+        mutableStateListOf<String>().apply { addAll(initialOrder) } 
+    }
+
+    val showResult = viewModel.lastCorrect
 
     REARRANGEQuestionScreen(
         categoryName = viewModel.selectedCategory?.categoryName ?: "Category Name",
         questionText = currentQuestion?.text ?: "Loading Questions...",
-        answerOptions = currentQuestion?.answerOptions ?: emptyList(),
-        selectedOption = {
-            viewModel.selectOption(it)
+        answerOptions = currentOrder,
+        showResult = showResult,
+        onReorder = { from, to ->
+            if (from != to && showResult == null) {
+                val item = currentOrder.removeAt(from)
+                currentOrder.add(to, item)
+            }
         },
-        modifier = modifier,
         onSubmit = {
-            viewModel.submitAnswer()
-//            onQuitHome()
-        }
+            if (showResult == null) {
+                val isCorrect = currentOrder.toList().joinToString(",") == currentQuestion?.correctAnswer
+                viewModel.submitManualResult(isCorrect)
+            } else {
+                onSubmit()
+            }
+        },
+        onQuitHome = onQuitHome,
+        modifier = modifier
     )
 }
 
@@ -70,10 +83,14 @@ fun REARRANGEQuestionScreen(
     categoryName: String,
     questionText: String,
     answerOptions: List<String>,
-    selectedOption: (Int) -> Unit,
+    showResult: Boolean?,
+    onReorder: (Int, Int) -> Unit,
     onSubmit: () -> Unit,
+    onQuitHome: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val headerImage = remember(categoryName) { ImageForCategory(categoryName) }
+
     GameScreenFrame(
         headerContent = {
             Text(
@@ -87,25 +104,21 @@ fun REARRANGEQuestionScreen(
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Spacer(Modifier.height(1.dp))
 
-            val headerImages = listOf(
-                R.drawable.history_graphic,
-                R.drawable.geography_graphic,
-                R.drawable.sciencemath_graphic,
-                R.drawable.popculture_graphic,
-                R.drawable.sportsgames_graphic,
-                R.drawable.literature_graphic,
-                R.drawable.mixedknowledge_graphic
-            )
-            Image(
-                painter = painterResource(id = headerImages.random()),
-                contentDescription = "Subject Graphic",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .clip(RoundedCornerShape(20.dp))
-            )
+            Box(contentAlignment = Alignment.Center) {
+                Image(
+                    painter = painterResource(id = headerImage),
+                    contentDescription = "Subject Graphic",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        .clip(RoundedCornerShape(20.dp)),
+                    contentScale = ContentScale.Crop
+                )
+                if (showResult != null) {
+                    ResultBanner(isCorrect = showResult)
+                }
+            }
 
-            // Timer Bar
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -122,8 +135,6 @@ fun REARRANGEQuestionScreen(
                 fontWeight = FontWeight.Medium
             )
 
-
-            // Question
             Text(
                 text = questionText,
                 color = Color.Black,
@@ -131,23 +142,99 @@ fun REARRANGEQuestionScreen(
                 fontWeight = FontWeight.Bold
             )
 
-            // Answer Choices
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                val colors = listOf(TriviaRed, TriviaPurple, TriviaTeal, TriviaGreen, TriviaYellow)
+            val colors = listOf(TriviaRed, TriviaPurple, TriviaTeal, TriviaGreen, TriviaYellow)
+            
+            RearrangeReorderableColumn(
+                items = answerOptions,
+                onReorder = onReorder,
+                colors = colors,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = showResult == null
+            )
 
-                answerOptions.forEachIndexed { index, option ->
-                    AnswerTile(
-                        color = colors.getOrElse(index) { Color.Gray },
-                        answerText = option
-                    )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                OutlinedButton(
+                    onClick = onQuitHome,
+                    modifier = Modifier.weight(1f),
+                    border = BorderStroke(2.dp, TriviaPurple)
+                ) {
+                    Text("Quit")
+                }
+
+                Button(
+                    onClick = onSubmit,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = TriviaPurple)
+                ) {
+                    Text(if (showResult == null) "Submit" else "Continue")
                 }
             }
+        }
+    }
+}
 
-            // Submit Button
-            PrimaryButton(
-                text = "Submit",
-                onClick = onSubmit
-            )
+@Composable
+private fun RearrangeReorderableColumn(
+    items: List<String>,
+    onReorder: (Int, Int) -> Unit,
+    colors: List<Color>,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
+) {
+    val density = LocalDensity.current
+    val itemHeightPx = with(density) { 40.dp.toPx() }
+    val spacingPx = with(density) { 16.dp.toPx() }
+    val totalStep = itemHeightPx + spacingPx
+
+    var draggingIndex by remember { mutableStateOf<Int?>(null) }
+    var dragOffsetY by remember { mutableStateOf(0f) }
+
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        items.forEachIndexed { index, item ->
+            val isDragging = draggingIndex == index
+            val verticalOffset = if (isDragging) dragOffsetY else 0f
+
+            Box(
+                modifier = Modifier
+                    .zIndex(if (isDragging) 1f else 0f)
+                    .offset { IntOffset(0, verticalOffset.roundToInt()) }
+                    .then(if (enabled) {
+                        Modifier.pointerInput(index) {
+                            detectDragGestures(
+                                onDragStart = {
+                                    draggingIndex = index
+                                    dragOffsetY = 0f
+                                },
+                                onDragEnd = {
+                                    val targetIndex = (index + (dragOffsetY / totalStep).roundToInt())
+                                        .coerceIn(0, items.size - 1)
+                                    onReorder(index, targetIndex)
+                                    draggingIndex = null
+                                    dragOffsetY = 0f
+                                },
+                                onDragCancel = {
+                                    draggingIndex = null
+                                    dragOffsetY = 0f
+                                },
+                                onDrag = { change, dragAmount ->
+                                    dragOffsetY += dragAmount.y
+                                    change.consume()
+                                }
+                            )
+                        }
+                    } else Modifier)
+            ) {
+                AnswerTile(
+                    color = colors[index % colors.size],
+                    answerText = item
+                )
+            }
         }
     }
 }
@@ -168,8 +255,7 @@ private fun AnswerTile(
         contentAlignment = Alignment.Center
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -192,6 +278,19 @@ private fun AnswerTile(
     }
 }
 
+private fun ImageForCategory(categoryName: String): Int {
+    return when (categoryName) {
+        "History" -> R.drawable.history_graphic
+        "Geography" -> R.drawable.geography_graphic
+        "Science & Math" -> R.drawable.sciencemath_graphic
+        "Pop Culture" -> R.drawable.popculture_graphic
+        "Sports & Games" -> R.drawable.sportsgames_graphic
+        "Literature" -> R.drawable.literature_graphic
+        "Mixed Knowledge" -> R.drawable.mixedknowledge_graphic
+        else -> R.drawable.history_graphic
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun RearrangeOrderQuestionScreenPreview() {
@@ -199,7 +298,9 @@ fun RearrangeOrderQuestionScreenPreview() {
         categoryName = "Pop Culture",
         questionText = "Highest grossing movie franchises of all time",
         answerOptions = listOf("Star Wars", "Harry Potter", "Lord of the Rings", "The Matrix", "The MCU"),
-        selectedOption = {},
-        onSubmit = {}
+        showResult = null,
+        onReorder = { _, _ -> },
+        onSubmit = {},
+        onQuitHome = {}
     )
 }
