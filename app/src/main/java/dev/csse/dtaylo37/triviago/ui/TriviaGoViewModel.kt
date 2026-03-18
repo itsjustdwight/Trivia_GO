@@ -137,7 +137,6 @@ class TriviaGoViewModel(
         val q = questions.getOrNull(questionIndex) ?: return Route.Home.path
         return when (q.type) {
             QuestionType.MC -> Route.MultipleChoice.path
-            QuestionType.FILL -> Route.FillBlank.path
             QuestionType.MATCH -> Route.Matching.path
             QuestionType.REARRANGE -> Route.Rearrange.path
             QuestionType.TF -> Route.TrueFalse.path
