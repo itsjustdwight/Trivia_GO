@@ -112,15 +112,13 @@ fun MATCHQuestionScreen(
         }
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Spacer(Modifier.height(1.dp))
-
             Box(contentAlignment = Alignment.Center) {
                 Image(
                     painter = painterResource(id = headerImage),
                     contentDescription = "Subject Graphic",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(225.dp)
+                        .height(200.dp)
                         .clip(RoundedCornerShape(20.dp)),
                     contentScale = ContentScale.Crop
                 )
@@ -151,7 +149,7 @@ fun MATCHQuestionScreen(
             Text(
                 text = questionText,
                 color = Color.Black,
-                fontSize = 22.sp,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
 

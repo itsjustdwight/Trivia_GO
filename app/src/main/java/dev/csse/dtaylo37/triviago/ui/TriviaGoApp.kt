@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -11,6 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import dev.csse.dtaylo37.triviago.ui.data.TriviaRepository
+import kotlinx.coroutines.launch
 
 @Composable
 fun TriviaGoApp(
@@ -39,8 +41,10 @@ fun TriviaGoApp(
             composable(Route.Home.path) {
                 ChooseGameCategoryScreen(
                     onCategorySelected = { category ->
-                        viewModel.selectCategory(category)
-                        nav.navigate(Route.Loading.create(category, 3))
+                        viewModel.viewModelScope.launch {
+                            viewModel.selectCategory(category)
+                            nav.navigate(Route.Loading.create(category, 3))
+                        }
                     },
                     onProfileSettings = {
                         nav.navigate(Route.ProfileSettings.path)
@@ -64,8 +68,11 @@ fun TriviaGoApp(
                     onBack = { nav.popBackStack() },
                     onDone = {
                         viewModel.startGame()
-                        nav.navigate(viewModel.routeForCurrentQuestion()) {
-                            popUpTo(Route.Home.path) { inclusive = false }
+
+                        if (viewModel.questions.isNotEmpty()) {
+                            nav.navigate(viewModel.routeForCurrentQuestion()) {
+                                popUpTo(Route.Home.path) { inclusive = false }
+                            }
                         }
                     }
                 )

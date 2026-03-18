@@ -59,24 +59,24 @@ class TriviaGoViewModel(
     var score by mutableIntStateOf(0)
         private set
 
-    fun selectCategory(categoryName: String) {
-        viewModelScope.launch {
-            val categoryList = triviaRepo.getGameCategories().map { it }.firstOrNull() ?: emptyList()
-            val category = categoryList.find { it.categoryName == categoryName }
+    suspend fun selectCategory(categoryName: String) {
+        val categoryList = triviaRepo.getGameCategories().map { it }.firstOrNull() ?: emptyList()
+        val category = categoryList.find { it.categoryName == categoryName }
 
-            selectedCategory = category
+        selectedCategory = category
 
-            if (category != null) {
-                // Get exactly 4 questions or as many as available
-                questions = triviaRepo.getQuestions(category.id).map { it.take(4) }.firstOrNull().orEmpty()
-            } else {
-                questions = emptyList()
-            }
-
-            questionIndex = 0
-            selectedIndex = null
-            lastCorrect = null
+        if (category != null) {
+            // Get exactly 4 questions or as many as available
+            questions = triviaRepo.getQuestions(category.id).map {
+                it.shuffled().take(4)
+            }.firstOrNull().orEmpty()
+        } else {
+            questions = emptyList()
         }
+
+        questionIndex = 0
+        selectedIndex = null
+        lastCorrect = null
     }
 
     private fun resetGameState() {
