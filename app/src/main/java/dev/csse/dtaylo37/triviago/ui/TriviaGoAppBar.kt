@@ -16,6 +16,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import dev.csse.dtaylo37.triviago.ui.theme.TriviaGOTheme
 
+
+// DON"T BELIEVE THIS IS USED ANYWHERE ANYMORE
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TriviaGoAppBar(title: String) {

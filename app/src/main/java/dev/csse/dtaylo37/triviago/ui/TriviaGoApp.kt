@@ -45,9 +45,6 @@ fun TriviaGoApp(
                             viewModel.selectCategory(category)
                             nav.navigate(Route.Loading.create(category, 3))
                         }
-                    },
-                    onProfileSettings = {
-                        nav.navigate(Route.ProfileSettings.path)
                     }
                 )
             }
@@ -183,13 +180,6 @@ fun TriviaGoApp(
                             }
                         }
                     }
-                )
-            }
-
-            composable(Route.ProfileSettings.path) {
-                ProfileSettingsScreen(
-                    viewModel = viewModel,
-                    onBackHome = { nav.popBackStack() }
                 )
             }
         }

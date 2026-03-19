@@ -12,5 +12,4 @@ sealed class Route(val path: String) {
     data object Rearrange : Route("question/rearrange")
     data object TrueFalse : Route("question/truefalse")
     data object Transition : Route("transition")
-    data object ProfileSettings : Route("profile_settings")
 }

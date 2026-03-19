@@ -80,7 +80,7 @@ class TriviaGoViewModel(
         selectedCategory = category
 
         if (category != null) {
-            // Get exactly 4 questions or as many as available
+            // Get exactly 4 questions
             questions = triviaRepo.getQuestions(category.id).map {
                 it.shuffled().take(4)
             }.firstOrNull().orEmpty()

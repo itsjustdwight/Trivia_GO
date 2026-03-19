@@ -59,8 +59,7 @@ private val CatLiterature = TriviaGreen
 
 @Composable
 fun ChooseGameCategoryScreen(
-    onCategorySelected: (String) -> Unit,
-    onProfileSettings: () -> Unit
+    onCategorySelected: (String) -> Unit
 ) {
     GameScreenFrame(
         headerContent = {
@@ -170,23 +169,6 @@ fun ChooseGameCategoryScreen(
         )
 
         Spacer(Modifier.height(12.dp))
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(72.dp)
-                .clip(RoundedCornerShape(20.dp))
-                .background(HeaderBrown)
-                .clickable { onProfileSettings() },
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "Profile Settings",
-                color = Color.White,
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
     }
 }
 
