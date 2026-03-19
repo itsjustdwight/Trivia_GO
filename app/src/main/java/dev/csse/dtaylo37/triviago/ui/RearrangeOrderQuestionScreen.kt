@@ -59,6 +59,8 @@ fun RearrangeOrderQuestionScreen(
         questionText = currentQuestion?.text ?: "Loading Questions...",
         answerOptions = currentOrder,
         showResult = showResult,
+        timeLeft = viewModel.timeLeft,
+        totalTime = viewModel.totalTime,
         onReorder = { from, to ->
             if (from != to && showResult == null) {
                 val item = currentOrder.removeAt(from)
@@ -84,12 +86,15 @@ fun REARRANGEQuestionScreen(
     questionText: String,
     answerOptions: List<String>,
     showResult: Boolean?,
+    timeLeft: Int,
+    totalTime: Int,
     onReorder: (Int, Int) -> Unit,
     onSubmit: () -> Unit,
     onQuitHome: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val headerImage = remember(categoryName) { ImageForCategory(categoryName) }
+    val headerImage = remember(categoryName) { imageForCategory(categoryName) }
+    val progress = timeLeft.toFloat() / totalTime
 
     GameScreenFrame(
         headerContent = {
@@ -122,13 +127,24 @@ fun REARRANGEQuestionScreen(
                     .fillMaxWidth()
                     .height(20.dp)
                     .clip(RoundedCornerShape(20.dp))
-                    .background(
-                        brush = Brush.horizontalGradient(listOf(TriviaRed, TriviaYellow, TriviaGreen))
-                    )
-            )
+                    .background(Color.LightGray.copy(alpha = 0.3f))
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(progress)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(
+                            brush = Brush.horizontalGradient(
+                                listOf(TriviaRed, TriviaYellow, TriviaGreen)
+                            )
+                        )
+                )
+            }
+
             Text(
-                text = "Time Left: ",
-                color = Color.Black,
+                text = "Time Left: ${timeLeft}s",
+                color = if (timeLeft <= 5) TriviaRed else Color.Black,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Medium
             )
@@ -276,7 +292,7 @@ private fun AnswerTile(
     }
 }
 
-private fun ImageForCategory(categoryName: String): Int {
+private fun imageForCategory(categoryName: String): Int {
     return when (categoryName) {
         "History" -> R.drawable.history_graphic
         "Geography" -> R.drawable.geography_graphic
@@ -297,6 +313,8 @@ fun RearrangeOrderQuestionScreenPreview() {
         questionText = "Highest grossing movie franchises of all time",
         answerOptions = listOf("Star Wars", "Harry Potter", "Lord of the Rings", "The Matrix", "The MCU"),
         showResult = null,
+        timeLeft = 5,
+        totalTime = 10,
         onReorder = { _, _ -> },
         onSubmit = {},
         onQuitHome = {}

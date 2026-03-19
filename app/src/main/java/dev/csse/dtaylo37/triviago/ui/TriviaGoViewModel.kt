@@ -11,6 +11,8 @@ import dev.csse.dtaylo37.triviago.ui.data.GameCategory
 import dev.csse.dtaylo37.triviago.ui.data.Question
 import dev.csse.dtaylo37.triviago.ui.data.QuestionType
 import dev.csse.dtaylo37.triviago.ui.data.TriviaRepository
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.firstOrNull
@@ -59,6 +61,12 @@ class TriviaGoViewModel(
     var score by mutableIntStateOf(0)
         private set
 
+    var timeLeft by mutableIntStateOf(10)
+        private set
+    
+    val totalTime = 10
+    private var timerJob: Job? = null
+
     suspend fun selectCategory(categoryName: String) {
         val categoryList = triviaRepo.getGameCategories().map { it }.firstOrNull() ?: emptyList()
         val category = categoryList.find { it.categoryName == categoryName }
@@ -74,9 +82,7 @@ class TriviaGoViewModel(
             questions = emptyList()
         }
 
-        questionIndex = 0
-        selectedIndex = null
-        lastCorrect = null
+        resetGameState()
     }
 
     private fun resetGameState() {
@@ -84,10 +90,25 @@ class TriviaGoViewModel(
         selectedIndex = null
         lastCorrect = null
         score = 0
+        startTimer()
     }
 
     fun startGame() {
         resetGameState()
+    }
+
+    private fun startTimer() {
+        timerJob?.cancel()
+        timeLeft = totalTime
+        timerJob = viewModelScope.launch {
+            while (timeLeft > 0 && lastCorrect == null) {
+                delay(1000)
+                timeLeft--
+            }
+            if (timeLeft == 0 && lastCorrect == null) {
+                submitManualResult(false)
+            }
+        }
     }
 
     fun selectOption(idx: Int) {
@@ -103,6 +124,7 @@ class TriviaGoViewModel(
         if (correct) {
             score++
         }
+        timerJob?.cancel()
     }
     
     fun submitManualResult(isCorrect: Boolean) {
@@ -110,6 +132,7 @@ class TriviaGoViewModel(
         if (isCorrect) {
             score++
         }
+        timerJob?.cancel()
     }
 
     fun nextQuestion(): Boolean {
@@ -120,6 +143,7 @@ class TriviaGoViewModel(
             questionIndex = next
             selectedIndex = null
             lastCorrect = null
+            startTimer()
         }
 
         return done
@@ -131,6 +155,7 @@ class TriviaGoViewModel(
         questionIndex = 0
         selectedIndex = null
         lastCorrect = null
+        timerJob?.cancel()
     }
 
     fun routeForCurrentQuestion(): String {

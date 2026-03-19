@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -53,6 +53,8 @@ fun MultipleChoiceQuestionScreen(
         answerOptions = currentQuestion?.answerOptions ?: emptyList(),
         selectedIndex = viewModel.selectedIndex,
         showResult = viewModel.lastCorrect,
+        timeLeft = viewModel.timeLeft,
+        totalTime = viewModel.totalTime,
         onOptionSelected = { if (viewModel.lastCorrect == null) viewModel.selectOption(it) },
         onSubmit = onSubmit,
         onQuitHome = onQuitHome,
@@ -67,12 +69,15 @@ fun MCQuestionScreen(
     answerOptions: List<String>,
     selectedIndex: Int?,
     showResult: Boolean?,
+    timeLeft: Int,
+    totalTime: Int,
     onOptionSelected: (Int) -> Unit,
     onSubmit: () -> Unit,
     onQuitHome: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val headerImage = remember(categoryName) { imageForCategory(categoryName) }
+    val progress = timeLeft.toFloat() / totalTime
 
     GameScreenFrame(
         headerContent = {
@@ -107,16 +112,24 @@ fun MCQuestionScreen(
                     .fillMaxWidth()
                     .height(20.dp)
                     .clip(RoundedCornerShape(20.dp))
-                    .background(
-                        brush = Brush.horizontalGradient(
-                            listOf(TriviaRed, TriviaYellow, TriviaGreen)
+                    .background(Color.LightGray.copy(alpha = 0.3f))
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(progress)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(
+                            brush = Brush.horizontalGradient(
+                                listOf(TriviaRed, TriviaYellow, TriviaGreen)
+                            )
                         )
-                    )
-            )
+                )
+            }
 
             Text(
-                text = "Time Left:",
-                color = Color.Black,
+                text = "Time Left: ${timeLeft}s",
+                color = if (timeLeft <= 5) TriviaRed else Color.Black,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Medium
             )
@@ -219,6 +232,8 @@ fun MultipleChoiceQuestionScreenPreview() {
         ),
         selectedIndex = 0,
         showResult = null,
+        timeLeft = 5,
+        totalTime = 10,
         onOptionSelected = {},
         onSubmit = {},
         onQuitHome = {}
