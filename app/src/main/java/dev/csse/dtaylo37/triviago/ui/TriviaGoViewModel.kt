@@ -67,6 +67,12 @@ class TriviaGoViewModel(
     val totalTime = 10
     private var timerJob: Job? = null
 
+    val totalQuestions: Int
+        get() = questions.size
+
+    val isLastQuestion: Boolean
+        get() = questions.isNotEmpty() && questionIndex == questions.size - 1
+
     suspend fun selectCategory(categoryName: String) {
         val categoryList = triviaRepo.getGameCategories().map { it }.firstOrNull() ?: emptyList()
         val category = categoryList.find { it.categoryName == categoryName }

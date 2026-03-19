@@ -48,6 +48,9 @@ fun NextQuestionTransitionScreen(
     TransitionScreen(
         categoryName = viewModel.selectedCategory?.categoryName ?: "Category Name",
         isCorrect = viewModel.lastCorrect ?: true,
+        score = viewModel.score,
+        totalQuestions = viewModel.totalQuestions,
+        isFinished = viewModel.isLastQuestion,
         onNext = onNext,
         onHome = onHome,
         modifier = modifier
@@ -58,6 +61,9 @@ fun NextQuestionTransitionScreen(
 fun TransitionScreen(
     categoryName: String,
     isCorrect: Boolean,
+    score: Int,
+    totalQuestions: Int,
+    isFinished: Boolean,
     onNext: () -> Unit,
     onHome: () -> Unit,
     modifier: Modifier = Modifier
@@ -103,19 +109,46 @@ fun TransitionScreen(
                     )
             )
 
-            Text(
-                text = "Time Left:",
-                color = Color.Black,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Medium
-            )
+            if (isFinished) {
+                Text(
+                    text = "Final Score:",
+                    color = Color.Black,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "$score / $totalQuestions",
+                    color = Color.Black,
+                    fontSize = 48.sp,
+                    fontWeight = FontWeight.ExtraBold
+                )
+            } else {
+                Text(
+                    text = "Time Left:",
+                    color = Color.Black,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
 
-            Spacer(Modifier.height(40.dp))
+            Spacer(Modifier.height(if (isFinished) 10.dp else 40.dp))
 
             Text(
-                text = if (isCorrect) 
-                    "Great job! You're on fire!\nKeep the momentum going." 
-                    else "Don't give up!\nYou'll get the next one.",
+                text = if (isFinished) {
+                    if (score == totalQuestions) {
+                        "Perfect! You're a trivia master!"
+                    } else if (score >= totalQuestions / 2) {
+                        "Great job! High score!"
+                    } else {
+                        "Good effort! Practice makes perfect."
+                    }
+                } else {
+                    if (isCorrect) {
+                        "Great job! You're on fire!\nKeep the momentum going."
+                    } else {
+                        "Don't give up!\nYou'll get the next one."
+                    }
+                },
                 color = Color.Black,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Medium,
@@ -125,7 +158,7 @@ fun TransitionScreen(
             Spacer(Modifier.weight(1f))
 
             PrimaryButton(
-                text = "Next Question",
+                text = if (isFinished) "Finish" else "Next Question",
                 onClick = onNext
             )
 
@@ -160,6 +193,23 @@ fun NextQuestionTransitionScreenPreview() {
     TransitionScreen(
         categoryName = "History",
         isCorrect = true,
+        score = 3,
+        totalQuestions = 5,
+        isFinished = false,
+        onNext = {},
+        onHome = {}
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun FinalScoreTransitionScreenPreview() {
+    TransitionScreen(
+        categoryName = "History",
+        isCorrect = true,
+        score = 4,
+        totalQuestions = 5,
+        isFinished = true,
         onNext = {},
         onHome = {}
     )
