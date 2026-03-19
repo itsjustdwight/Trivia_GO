@@ -72,7 +72,7 @@ fun TFQuestionScreen(
     onQuitHome: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val headerImage = remember(categoryName) { tfImageForCategory(categoryName) }
+    val headerImage = remember(categoryName) { ImageForCategory(categoryName) }
 
     GameScreenFrame(
         headerContent = {
@@ -130,7 +130,7 @@ fun TFQuestionScreen(
                 val colors = listOf(TriviaGreen, TriviaRed)
 
                 answerOptions.forEachIndexed { index, option ->
-                    TFAnswerTile(
+                    AnswerTile(
                         color = colors.getOrElse(index) { Color.Gray },
                         answerText = option,
                         isSelected = selectedIndex == index,
@@ -165,7 +165,7 @@ fun TFQuestionScreen(
 }
 
 @Composable
-private fun TFAnswerTile(
+private fun AnswerTile(
     color: Color,
     answerText: String,
     isSelected: Boolean,
@@ -174,7 +174,7 @@ private fun TFAnswerTile(
 ) {
     Box(
         modifier = modifier
-            .height(330.dp)
+            .height(300.dp)
             .width(165.dp)
             .clip(RoundedCornerShape(20.dp))
             .background(if (isSelected) color.copy(alpha = 0.75f) else color)
@@ -190,7 +190,7 @@ private fun TFAnswerTile(
     }
 }
 
-private fun tfImageForCategory(categoryName: String): Int {
+private fun ImageForCategory(categoryName: String): Int {
     return when (categoryName) {
         "History" -> R.drawable.history_graphic
         "Geography" -> R.drawable.geography_graphic

@@ -8,7 +8,7 @@ import androidx.room.TypeConverters
     entities = [
         Question::class,
         GameCategory::class],
-    version = 1
+    version = 3
 )
 @TypeConverters(Converters::class)
 abstract class TriviaDatabase : RoomDatabase() {

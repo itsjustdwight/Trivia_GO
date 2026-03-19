@@ -54,8 +54,13 @@ fun MatchingQuestionScreen(
         currentQuestion?.correctAnswer?.split(",") ?: emptyList()
     }
 
-    val shuffledRight = remember(correctRightOrder) { correctRightOrder.shuffled() }
-    val currentRightItems = remember(shuffledRight) { mutableStateListOf<String>().apply { addAll(shuffledRight) } }
+    val currentRightItems = remember(correctRightOrder) {
+        var shuffled = correctRightOrder.shuffled()
+        while (shuffled.size > 1 && shuffled == correctRightOrder) {
+            shuffled = correctRightOrder.shuffled()
+        }
+        mutableStateListOf<String>().apply { addAll(shuffled) }
+    }
 
     val showResult = viewModel.lastCorrect
 
